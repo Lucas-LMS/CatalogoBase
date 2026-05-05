@@ -3,779 +3,849 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rei dos Doces — Catálogo</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<!-- Firebase v8 -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-<title>Rei dos Doces — Catálogo Completo</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
 <style>
-
-/* Estilo para o Modal de Edição */
-.modal { display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.8); backdrop-filter:blur(5px); }
-.modal-content { background:var(--bg2); margin:5% auto; padding:2rem; border:1px solid var(--gold); border-radius:15px; width:90%; max-width:500px; }
-.modal-content h2 { color:var(--gold); margin-bottom:1rem; font-family:'Playfair Display', serif; }
-.form-group { margin-bottom:1rem; }
-.form-group label { display:block; font-size:11px; color:var(--text3); text-transform:uppercase; margin-bottom:4px; }
-.form-group input, .form-group select, .form-group textarea { width:100%; background:var(--bg3); border:1px solid var(--border2); padding:.6rem; color:var(--text); border-radius:6px; outline:none; }
-.btn-save { background:var(--gold); color:var(--bg); border:none; padding:.8rem 1.5rem; border-radius:8px; cursor:pointer; font-weight:bold; width:100%; }
-.btn-add-float { position:fixed; bottom:2rem; right:2rem; background:var(--gold); width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:24px; cursor:pointer; box-shadow:0 4px 15px rgba(0,0,0,0.4); z-index:101; }
-.edit-btn { font-size:10px; color:var(--gold); cursor:pointer; text-decoration:underline; margin-left:10px; }
-
-
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0e0b14;
-  --bg2:#16111f;
-  --bg3:#1e1729;
-  --card:#1a1329;
-  --card2:#221a35;
-  --border:#2e2247;
-  --border2:#3d3060;
-  --gold:#c9a84c;
-  --gold2:#e8c96d;
-  --goldl:#f5e4b0;
-  --pink:#d4537e;
-  --teal:#1d9e75;
-  --coral:#d85a30;
-  --blue:#378add;
-  --purple:#7f77dd;
-  --text:#f0eaff;
-  --text2:#b0a8c8;
-  --text3:#7a708c;
+  --bg:#0e0b14;--bg2:#16111f;--bg3:#1e1729;--card:#1a1329;
+  --border:#2e2247;--border2:#3d3060;
+  --gold:#c9a84c;--gold2:#e8c96d;
+  --text:#f0eaff;--text2:#b0a8c8;--text3:#7a708c;
   --badge-r:#2e1215;--badge-rt:#e24b4a;
   --badge-g:#0f2e1a;--badge-gt:#1d9e75;
   --badge-b:#0c2140;--badge-bt:#378add;
   --badge-p:#1e1a40;--badge-pt:#7f77dd;
   --badge-a:#2e1e08;--badge-at:#ba7517;
+  --danger:#e24b4a;--teal:#1d9e75;
+  --header-h:130px;
 }
-body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.5;min-height:100vh}
 
-/* HEADER */
-.header{background:var(--bg2);border-bottom:1px solid var(--border);padding:2rem 1.5rem 1.5rem;text-align:center;position:sticky;top:0;z-index:100}
-.header-logo{font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--gold);letter-spacing:2px;text-transform:uppercase}
-.header-sub{color:var(--text3);font-size:11px;letter-spacing:3px;text-transform:uppercase;margin-top:2px}
-.header-stats{display:flex;justify-content:center;gap:2rem;margin-top:1rem;flex-wrap:wrap}
+/* ── BASE ──────────────────────────────────────── */
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.5;min-height:100vh;overflow-x:hidden}
+
+/* ── HEADER ────────────────────────────────────── */
+.header{background:var(--bg2);border-bottom:1px solid var(--border);padding:1rem 1rem .8rem;text-align:center;position:sticky;top:0;z-index:200}
+.header-logo{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:var(--gold);letter-spacing:2px;text-transform:uppercase}
+.header-sub{color:var(--text3);font-size:10px;letter-spacing:3px;text-transform:uppercase;margin-top:1px}
+.header-stats{display:flex;justify-content:center;gap:1.2rem;margin-top:.6rem;flex-wrap:wrap}
 .stat{text-align:center}
-.stat-n{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--gold2);font-weight:600}
-.stat-l{font-size:10px;color:var(--text3);letter-spacing:1px;text-transform:uppercase}
+.stat-n{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--gold2);font-weight:600;line-height:1.2}
+.stat-l{font-size:9px;color:var(--text3);letter-spacing:1px;text-transform:uppercase}
+.status-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#555;margin-right:4px;vertical-align:middle;transition:background .3s}
+.status-dot.online{background:var(--teal)}
+.status-dot.offline{background:var(--danger)}
 
-/* CONTROLS */
-.controls{background:var(--bg2);border-bottom:1px solid var(--border);padding:.75rem 1.5rem;display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;position:sticky;top:140px;z-index:99}
-.search-wrap{position:relative;flex:1;min-width:180px}
-.search-wrap input{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:.5rem .75rem .5rem 2rem;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;outline:none}
+/* ── CONTROLS ──────────────────────────────────── */
+.controls{background:var(--bg2);border-bottom:1px solid var(--border);padding:.55rem 1rem;display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;position:sticky;top:var(--header-h,130px);z-index:199}
+.search-wrap{position:relative;flex:1;min-width:140px}
+.search-wrap input{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:.4rem .7rem .4rem 1.9rem;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;outline:none}
 .search-wrap input::placeholder{color:var(--text3)}
 .search-wrap input:focus{border-color:var(--gold)}
-.search-icon{position:absolute;left:.6rem;top:50%;transform:translateY(-50%);color:var(--text3);font-size:13px;pointer-events:none}
-.sort-select{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:.5rem .75rem;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;cursor:pointer}
-.sort-select:focus{border-color:var(--gold)}
+.search-icon{position:absolute;left:.55rem;top:50%;transform:translateY(-50%);color:var(--text3);font-size:12px;pointer-events:none}
+.ctrl-select{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:.4rem .6rem;color:var(--text);font-size:12px;font-family:'DM Sans',sans-serif;outline:none;cursor:pointer}
+.btn-add{background:var(--gold);color:#0e0b14;border:none;border-radius:8px;padding:.4rem .9rem;font-size:12px;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .15s}
+.btn-add:hover{background:var(--gold2)}
 
-/* TABS */
-.tabs{background:var(--bg2);border-bottom:1px solid var(--border);padding:.5rem 1.5rem;display:flex;gap:.25rem;overflow-x:auto;scrollbar-width:none;position:sticky;top:197px;z-index:98}
+/* ── TABS ──────────────────────────────────────── */
+.tabs{background:var(--bg2);border-bottom:1px solid var(--border);padding:.35rem 1rem;display:flex;gap:.2rem;overflow-x:auto;scrollbar-width:none;position:sticky;top:calc(var(--header-h,130px) + 44px);z-index:198}
 .tabs::-webkit-scrollbar{display:none}
-.tab{padding:.4rem .9rem;border-radius:20px;border:1px solid transparent;cursor:pointer;font-size:12px;white-space:nowrap;color:var(--text2);transition:all .15s}
+.tab{padding:.3rem .7rem;border-radius:20px;border:1px solid transparent;cursor:pointer;font-size:11px;white-space:nowrap;color:var(--text2);transition:all .15s;user-select:none}
 .tab:hover{background:var(--bg3);color:var(--text)}
-.tab.active{background:var(--gold);color:#0e0b14;font-weight:600;border-color:var(--gold)}
+.tab.active{background:var(--gold);color:#0e0b14;font-weight:600}
 
-/* BRANDS SECTION */
-.brands-section{padding:1.5rem 1.5rem .5rem;display:none}
+/* ── BRANDS ────────────────────────────────────── */
+.brands-section{padding:1.2rem 1rem .5rem;display:none}
 .brands-section.visible{display:block}
-.brands-title{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--gold2);margin-bottom:1rem}
-.brands-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.75rem}
-.brand-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem}
-.brand-name{font-weight:600;font-size:13px;color:var(--gold2);margin-bottom:.3rem}
-.brand-origin{font-size:11px;color:var(--text3);margin-bottom:.4rem}
-.brand-desc{font-size:12px;color:var(--text2);line-height:1.5}
+.brands-title{font-family:'Playfair Display',serif;font-size:1rem;color:var(--gold2);margin-bottom:.8rem}
+.brands-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.6rem}
+.brand-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:.85rem}
+.brand-name{font-weight:600;font-size:13px;color:var(--gold2);margin-bottom:.25rem}
+.brand-origin{font-size:10px;color:var(--text3);margin-bottom:.3rem}
+.brand-desc{font-size:11px;color:var(--text2);line-height:1.5}
 
-/* CATALOG GRID */
-.catalog{padding:1.5rem}
-.cat-section{margin-bottom:2.5rem}
-.cat-header{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--border)}
-.cat-icon{font-size:1.3rem}
-.cat-title{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--gold2)}
-.cat-count{font-size:11px;color:var(--text3);background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:2px 8px}
-.products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.75rem}
+/* ── CATALOG ───────────────────────────────────── */
+.catalog{padding:1rem}
+.cat-section{margin-bottom:2rem}
+.cat-header{display:flex;align-items:center;gap:.6rem;margin-bottom:.8rem;padding-bottom:.6rem;border-bottom:1px solid var(--border)}
+.cat-icon{font-size:1.1rem}
+.cat-title{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--gold2)}
+.cat-count{font-size:10px;color:var(--text3);background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:2px 7px}
+.products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.65rem}
 
-/* PRODUCT CARD */
-.pcard{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem;transition:border-color .15s,transform .15s;cursor:default}
+/* ── CARD ──────────────────────────────────────── */
+.pcard{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:.85rem;transition:border-color .15s,transform .15s;position:relative;cursor:default}
 .pcard:hover{border-color:var(--border2);transform:translateY(-1px)}
-.pcard-top{display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem;margin-bottom:.5rem}
+.pcard-top{display:flex;justify-content:space-between;align-items:flex-start;gap:.4rem;margin-bottom:.4rem;padding-right:1.8rem}
 .pcard-name{font-size:13px;font-weight:500;color:var(--text);flex:1}
-.pcard-brand{font-size:10px;color:var(--gold);background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.25);border-radius:10px;padding:2px 7px;white-space:nowrap;flex-shrink:0}
-.pcard-tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:.6rem}
-.tag{font-size:10px;border-radius:8px;padding:2px 7px;font-weight:500}
+.pcard-brand{font-size:10px;color:var(--gold);background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.25);border-radius:10px;padding:2px 6px;white-space:nowrap;flex-shrink:0}
+.pcard-tags{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:.5rem}
+.tag{font-size:9px;border-radius:8px;padding:2px 6px;font-weight:500}
 .tag-r{background:var(--badge-r);color:var(--badge-rt)}
 .tag-g{background:var(--badge-g);color:var(--badge-gt)}
 .tag-b{background:var(--badge-b);color:var(--badge-bt)}
 .tag-p{background:var(--badge-p);color:var(--badge-pt)}
 .tag-a{background:var(--badge-a);color:var(--badge-at)}
-.pcard-info{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:.6rem}
-.pinfo{background:var(--bg3);border-radius:6px;padding:5px 8px}
-.pinfo-l{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
-.pinfo-v{font-size:13px;font-weight:600;color:var(--text)}
-.pcard-price-row{display:flex;align-items:baseline;justify-content:space-between;margin-top:.5rem;padding-top:.5rem;border-top:1px solid var(--border)}
-.pcard-price{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--gold2);font-weight:600}
-.pcard-ppu{font-size:11px;color:var(--text3)}
-.pcard-variants{margin-top:.5rem;border-top:1px solid var(--border);padding-top:.5rem}
-.variant-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:12px;color:var(--text2);border-bottom:1px solid rgba(255,255,255,.04)}
+.pcard-info{display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-bottom:.5rem}
+.pinfo{background:var(--bg3);border-radius:6px;padding:4px 7px}
+.pinfo-l{font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px}
+.pinfo-v{font-size:12px;font-weight:600;color:var(--text)}
+.pcard-price-row{display:flex;align-items:baseline;justify-content:space-between;margin-top:.4rem;padding-top:.4rem;border-top:1px solid var(--border)}
+.pcard-price{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--gold2);font-weight:600}
+.pcard-ppu{font-size:10px;color:var(--text3)}
+.pcard-variants{margin-top:.4rem;border-top:1px solid var(--border);padding-top:.4rem}
+.variant-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:11px;color:var(--text2);border-bottom:1px solid rgba(255,255,255,.04)}
 .variant-row:last-child{border-bottom:none}
-.variant-desc{flex:1;font-size:11px}
-.variant-price{color:var(--gold2);font-weight:500;font-size:12px}
-.variant-ppu{color:var(--text3);font-size:10px;margin-left:.5rem}
-
-/* NUTRI INFO */
-.nutri-bar{display:flex;gap:4px;margin-top:.5rem;flex-wrap:wrap}
-.nutri-pill{font-size:9px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:2px 6px;color:var(--text3)}
+.variant-desc{flex:1;font-size:10px}
+.variant-price{color:var(--gold2);font-weight:500;font-size:11px}
+.variant-ppu{color:var(--text3);font-size:9px;margin-left:.4rem}
+.nutri-bar{display:flex;gap:3px;margin-top:.4rem;flex-wrap:wrap}
+.nutri-pill{font-size:9px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:2px 5px;color:var(--text3)}
 .nutri-pill span{color:var(--text2);font-weight:500}
+.pcard-obs{font-size:10px;color:var(--text3);margin-top:.4rem;line-height:1.4}
 
-.no-results{text-align:center;padding:3rem;color:var(--text3);font-size:1rem}
+/* edit button ─── */
+.edit-fab{position:absolute;top:.55rem;right:.55rem;width:24px;height:24px;border-radius:6px;background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.2);cursor:pointer;color:var(--gold);font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .15s;line-height:1}
+.edit-fab:hover{background:rgba(201,168,76,.25);border-color:var(--gold)}
 
-/* FOOTER */
-footer{text-align:center;padding:2rem;color:var(--text3);font-size:11px;border-top:1px solid var(--border);letter-spacing:.5px}
-footer strong{color:var(--gold);font-size:.8rem}
+/* ── LOADING / EMPTY ────────────────────────────── */
+.no-results{text-align:center;padding:3rem;color:var(--text3)}
+.loading-state{text-align:center;padding:4rem;color:var(--text3)}
+.spinner{display:inline-block;width:30px;height:30px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;margin-bottom:.8rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── MODAL ─────────────────────────────────────── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;display:flex;align-items:flex-start;justify-content:center;padding:1rem;overflow-y:auto;backdrop-filter:blur(3px)}
+.overlay.hidden{display:none}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:520px;padding:1.25rem;position:relative;margin:auto}
+.modal-title{font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--gold2);margin-bottom:1rem}
+.modal-close{position:absolute;top:.8rem;right:.8rem;background:none;border:none;color:var(--text3);font-size:1.2rem;cursor:pointer;padding:4px 7px;border-radius:6px;line-height:1}
+.modal-close:hover{background:var(--bg3);color:var(--text)}
+.fg{margin-bottom:.7rem}
+.fg label{display:block;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.fg input,.fg select,.fg textarea{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:.4rem .65rem;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--gold)}
+.fg textarea{resize:vertical;min-height:55px;line-height:1.5}
+.fg input::placeholder{color:var(--text3)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.6rem}
+.sec-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-weight:600;padding:.5rem 0 .25rem;border-top:1px solid var(--border);margin-top:.3rem}
+.ppu-calc{font-size:11px;color:var(--teal);margin-top:2px;font-weight:500;min-height:16px}
+.modal-actions{display:flex;gap:.5rem;justify-content:flex-end;margin-top:1rem;padding-top:.8rem;border-top:1px solid var(--border);flex-wrap:wrap}
+.btn-cancel{background:transparent;border:1px solid var(--border2);border-radius:8px;padding:.45rem .9rem;color:var(--text2);font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s}
+.btn-cancel:hover{border-color:var(--text3);color:var(--text)}
+.btn-save{background:var(--gold);color:#0e0b14;border:none;border-radius:8px;padding:.45rem 1.1rem;font-size:12px;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;transition:background .15s}
+.btn-save:hover{background:var(--gold2)}
+.btn-del{background:transparent;border:1px solid rgba(226,75,74,.4);border-radius:8px;padding:.45rem .9rem;color:var(--danger);font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;margin-right:auto}
+.btn-del:hover{background:rgba(226,75,74,.12)}
+.btn-seed{background:transparent;border:1px solid var(--border2);border-radius:8px;padding:.4rem .8rem;color:var(--text2);font-size:11px;font-family:'DM Sans',sans-serif;cursor:pointer;margin-top:.5rem}
+.btn-seed:hover{border-color:var(--gold);color:var(--gold)}
+
+/* ── TOAST ─────────────────────────────────────── */
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(20px);background:#222;color:#fff;padding:.6rem 1.2rem;border-radius:30px;font-size:12px;z-index:9999;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.ok{border-left:3px solid var(--teal)}
+.toast.err{border-left:3px solid var(--danger)}
+
+/* ── FOOTER ────────────────────────────────────── */
+footer{text-align:center;padding:1.5rem;color:var(--text3);font-size:10px;border-top:1px solid var(--border);letter-spacing:.5px}
+footer strong{color:var(--gold)}
+
+/* ── MOBILE ────────────────────────────────────── */
+@media(max-width:600px){
+  :root{--header-h:120px}
+  .header-logo{font-size:1.35rem}
+  .header-stats{gap:.8rem}
+  .stat-n{font-size:1rem}
+  .products-grid{grid-template-columns:1fr}
+  .brands-grid{grid-template-columns:1fr}
+  .row3{grid-template-columns:1fr 1fr}
+  .modal{padding:1rem}
+  .modal-actions{justify-content:stretch}
+  .btn-save,.btn-cancel,.btn-del{flex:1;text-align:center}
+  .btn-del{flex:none;width:100%;order:-1;margin-right:0;margin-bottom:.3rem}
+  .tabs{top:calc(var(--header-h,120px) + 42px)}
+}
+@media(max-width:380px){
+  .controls{flex-direction:column;align-items:stretch}
+  .search-wrap{min-width:auto}
+  .btn-add{width:100%;justify-content:center;display:flex}
+}
 </style>
 </head>
 <body>
 
-
-<div class="header">
+<!-- HEADER -->
+<div class="header" id="header-el">
   <div class="header-logo">&#9670; Rei dos Doces &#9670;</div>
   <div class="header-sub">Catálogo Completo de Produtos</div>
   <div class="header-stats">
-    <div class="stat"><div class="stat-n" id="total-products">127</div><div class="stat-l">Produtos</div></div>
-    <div class="stat"><div class="stat-n" id="total-brands">30+</div><div class="stat-l">Marcas</div></div>
+    <div class="stat"><div class="stat-n" id="stat-total">—</div><div class="stat-l">Produtos</div></div>
     <div class="stat"><div class="stat-n">10</div><div class="stat-l">Categorias</div></div>
-    <div class="stat"><div class="stat-n" id="price-range">R$3,99–R$87,39</div><div class="stat-l">Faixa de Preços</div></div>
+    <div class="stat"><div class="stat-n"><span class="status-dot" id="status-dot"></span><span id="stat-status">...</span></div><div class="stat-l">Status</div></div>
   </div>
 </div>
 
+<!-- CONTROLS -->
 <div class="controls">
   <div class="search-wrap">
     <span class="search-icon">&#128269;</span>
-    <input type="text" id="search" placeholder="Buscar produto, marca..." oninput="render()">
+    <input type="text" id="search" placeholder="Buscar produto ou marca..." oninput="render()">
   </div>
-  <select class="sort-select" id="sort" onchange="render()">
+  <select class="ctrl-select" id="sort" onchange="render()">
     <option value="default">Ordem padrão</option>
-    <option value="price-asc">Preço: menor primeiro</option>
-    <option value="price-desc">Preço: maior primeiro</option>
-    <option value="ppu-asc">Preço/un: menor primeiro</option>
+    <option value="price-asc">Menor preço</option>
+    <option value="price-desc">Maior preço</option>
+    <option value="ppu-asc">Menor preço/un</option>
     <option value="name-asc">Nome A–Z</option>
   </select>
+  <button class="btn-add" onclick="openModal()">&#43; Produto</button>
 </div>
 
+<!-- TABS -->
 <div class="tabs" id="tabs"></div>
 
+<!-- BRANDS -->
 <div class="brands-section" id="brands-section">
   <div class="brands-title">&#9670; Informações das Marcas</div>
   <div class="brands-grid" id="brands-grid"></div>
 </div>
 
-<div class="catalog" id="catalog"></div>
-
-<footer><strong>REI DOS DOCES</strong> &mdash; Catálogo gerado automaticamente &bull; Preços sujeitos a alteração &bull; Preço/un calculado sobre o preço de tabela</footer>
-
-
-<div id="productModal" class="modal">
-  <div class="modal-content" style="max-height: 90vh; overflow-y: auto;">
-    <h2 id="modalTitle">Novo Produto</h2>
-    <input type="hidden" id="editIndex">
-    
-    <div class="form-group">
-      <label>Nome do Produto</label>
-      <input type="text" id="formName">
-    </div>
-    
-    <div class="form-group">
-      <label>Marca</label>
-      <input type="text" id="formBrand">
-    </div>
-    
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
-      <div class="form-group">
-        <label>Categoria</label>
-        <select id="formCat"></select>
-      </div>
-      <div class="form-group">
-        <label>Preço Total (R$)</label>
-        <input type="number" step="0.01" id="formPrice">
-      </div>
-    </div>
-
-    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px">
-      <div class="form-group">
-        <label>Qtd. Caixa</label>
-        <input type="number" id="formQty">
-      </div>
-      <div class="form-group">
-        <label>Preço/Un. (R$)</label>
-        <input type="number" step="0.01" id="formPpu">
-      </div>
-      <div class="form-group">
-        <label>Preço/KG (R$)</label>
-        <input type="number" step="0.01" id="formKgPrice" placeholder="Opcional">
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label>Unidade / Descrição (ex: Rolha 18g)</label>
-      <input type="text" id="formUnit">
-    </div>
-
-    <!-- NOVO CAMPO PARA TAGS -->
-    <div class="form-group">
-      <label>Tags / Destaques (separados por vírgula)</label>
-      <input type="text" id="formTags" placeholder="ex: Sem Glúten, Premium, Econômica">
-    </div>
-
-    <h3 style="color:var(--text2); font-size:11px; text-transform:uppercase; margin:15px 0 10px; border-bottom:1px solid var(--border); padding-bottom:5px;">Tabela Nutricional (Opcional)</h3>
-    <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:8px">
-      <div class="form-group">
-        <label>Kcal</label>
-        <input type="number" id="formNutriKcal">
-      </div>
-      <div class="form-group">
-        <label>Prot</label>
-        <input type="text" id="formNutriProt" placeholder="ex: 3,5g">
-      </div>
-      <div class="form-group">
-        <label>Carb</label>
-        <input type="text" id="formNutriCarb" placeholder="ex: 9,7g">
-      </div>
-      <div class="form-group">
-        <label>Gord</label>
-        <input type="text" id="formNutriGord" placeholder="ex: 5,6g">
-      </div>
-    </div>
-
-    <div class="form-group" style="margin-top:10px">
-      <label>Observações / Ingredientes</label>
-      <textarea id="formObs" rows="3" style="resize:vertical"></textarea>
-    </div>
-
-    <button class="btn-save" onclick="saveProduct()">Salvar no Catálogo</button>
-    <button style="background:transparent; color:var(--text3); border:none; margin-top:10px; width:100%; cursor:pointer" onclick="closeModal()">Cancelar</button>
-  </div>
+<!-- CATALOG -->
+<div class="catalog" id="catalog">
+  <div class="loading-state"><div class="spinner"></div><br>Carregando produtos...</div>
 </div>
 
-<!-- Botão flutuante de adicionar restaurado aqui -->
-<div class="btn-add-float" onclick="openModal()">+</div>
+<footer><strong>REI DOS DOCES</strong> &bull; Dados em tempo real via Firebase &bull; Preços sujeitos a alteração</footer>
+
+<!-- MODAL -->
+<div class="overlay hidden" id="overlay" onclick="overlayClick(event)">
+<div class="modal" id="modal">
+  <button class="modal-close" onclick="closeModal()">&#10005;</button>
+  <div class="modal-title" id="modal-title">Adicionar Produto</div>
+
+  <input type="hidden" id="f-key">
+
+  <div class="fg">
+    <label>Nome do Produto *</label>
+    <input id="f-name" placeholder="Ex: Paçoquita Rolha">
+  </div>
+  <div class="row2">
+    <div class="fg">
+      <label>Marca *</label>
+      <input id="f-brand" placeholder="Ex: Santa Helena">
+    </div>
+    <div class="fg">
+      <label>Categoria *</label>
+      <select id="f-cat"></select>
+    </div>
+  </div>
+
+  <div class="sec-label">Precificação</div>
+  <div class="row2">
+    <div class="fg">
+      <label>Preço Total (R$) *</label>
+      <input id="f-price" type="number" min="0" step="0.01" placeholder="0,00" oninput="calcPpu()">
+    </div>
+    <div class="fg">
+      <label>Qtd. por Caixa</label>
+      <input id="f-qty" type="number" min="0" step="1" placeholder="Ex: 100" oninput="calcPpu()">
+    </div>
+  </div>
+  <div class="row3">
+    <div class="fg">
+      <label>Preço/un (R$)</label>
+      <input id="f-ppu" type="number" min="0" step="0.01" placeholder="Auto">
+      <div class="ppu-calc" id="ppu-calc"></div>
+    </div>
+    <div class="fg">
+      <label>Preço/kg (R$)</label>
+      <input id="f-kgprice" type="number" min="0" step="0.01" placeholder="Opcional">
+    </div>
+    <div class="fg">
+      <label>Embalagem</label>
+      <input id="f-unit" placeholder="Ex: 18g">
+    </div>
+  </div>
+
+  <div class="sec-label">Tags (separadas por vírgula)</div>
+  <div class="fg">
+    <input id="f-tags" placeholder="Ex: Sem Glúten, Premium, Importado">
+  </div>
+
+  <div class="sec-label">Nutricional (opcional)</div>
+  <div class="row2">
+    <div class="fg"><label>kcal / porção</label><input id="f-kcal" type="number" placeholder="Ex: 103"></div>
+    <div class="fg"><label>Proteínas</label><input id="f-prot" placeholder="Ex: 3,5g"></div>
+  </div>
+  <div class="row2">
+    <div class="fg"><label>Carboidratos</label><input id="f-carb" placeholder="Ex: 9,7g"></div>
+    <div class="fg"><label>Gorduras</label><input id="f-gord" placeholder="Ex: 5,6g"></div>
+  </div>
+
+  <div class="sec-label">Observações</div>
+  <div class="fg">
+    <textarea id="f-obs" placeholder="Ingredientes, dicas, destaque de custo-benefício..."></textarea>
+  </div>
+
+  <div class="modal-actions">
+    <button class="btn-del" id="btn-del" style="display:none" onclick="deleteProduct()">&#128465; Excluir</button>
+    <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+    <button class="btn-save" onclick="saveProduct()">Salvar</button>
+  </div>
+
+  <!-- Seed button - only visible when DB empty -->
+  <div id="seed-wrap" style="display:none;margin-top:.75rem;border-top:1px solid var(--border);padding-top:.75rem">
+    <div style="font-size:11px;color:var(--text3);margin-bottom:.4rem">Banco vazio — deseja popular com todos os produtos do catálogo base?</div>
+    <button class="btn-seed" onclick="seedData()">&#8659; Popular banco de dados agora</button>
+  </div>
+</div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
 
 <script>
-
-
-
-const brands = {
-  "Santa Helena": {origin:"Brasil (Taboão da Serra, SP)",founded:"1955",desc:"Líder nacional em paçoca, amendoim e doces de amendoim. A Paçoquita Santa Helena é o produto mais vendido no segmento há mais de 25 anos. Sem glúten, ingredientes: amendoim torrado, açúcar e sal."},
-  "Fini": {origin:"Espanha (Múrcia, 1971) · Fábrica BR em Jundiaí, SP",founded:"1971",desc:"Maior marca de balas de goma do mundo presente no Brasil desde 2001. Detém 70% de market share em balas de gelatina. Mais de 1.000 produtos, presente em 100+ países. Reconhecida como Marca de Alto Renome pelo INPI."},
-  "Arcor": {origin:"Argentina (Córdoba, 1951)",founded:"1951",desc:"Maior fabricante de balas da América Latina. Produz chicletes nas linhas Flics, Big Big, Zumbis, Plutonita e Posh. Presente em mais de 120 países."},
-  "Rapa Nui": {origin:"Argentina (Bariloche)",founded:"1939",desc:"Marca premium argentina fundada por Aldo Fenoglio, com tradição italiana de chocolates artesanais. A linha de doces típicos (torrone, abóbora, geleia) é amplamente distribuída no Brasil."},
-  "Trident": {origin:"EUA (Mondelēz International)",founded:"1960",desc:"Chiclete funcional da Mondelēz com fórmula sem açúcar. Líder mundial no segmento premium de chicletes. Contém xilitol, agente anticáries reconhecido por dentistas."},
-  "Mentos": {origin:"Holanda (Perfetti Van Melle, 1948)",founded:"1948",desc:"Pastilha mastigável icônica fabricada pela Perfetti Van Melle. Disponível em múltiplos sabores e formatos — rolinho clássico, garrafa e chiclete. A 'garrafa' é o formato premium/colecionável."},
-  "Tic Tac": {origin:"Itália (Ferrero, 1969)",founded:"1969",desc:"Pastilha minúscula da Ferrero com apenas 2 kcal por unidade. Embalagem flip-top icônica existente desde o lançamento. Disponível em formato mini (14 un.) e jumbo (grande, 8 un. maiores)."},
-  "Halls": {origin:"EUA (Mondelēz International)",founded:"1930",desc:"Drops refrescantes com mentol e ingredientes ativos. Muito consumido como auxiliar respiratório. Embalagem com 21 unidades. Marca centenária presente globalmente."},
-  "KitKat": {origin:"Reino Unido (Nestlé, 1935)",founded:"1935",desc:"Wafer coberto com chocolate ao leite, uma das barras de chocolate mais vendidas do mundo. Formato caixa com 24 barras de 41,5g cada (1kg total). Slogan clássico: 'Have a break, have a KitKat'."},
-  "Snickers": {origin:"EUA (Mars Inc., 1930)",founded:"1930",desc:"Barra de amendoim com caramelo, nougat e chocolate ao leite. Uma das barras mais calóricas e nutritivas do segmento. Formato caixa com 20 barras de 42g (840g total)."},
-  "M&M's": {origin:"EUA (Mars Inc., 1941)",founded:"1941",desc:"Confeitos de chocolate com casca colorida crocante. Formato mini pack 132g para consumo individual e caixa com 18 pacotes de 40g (720g total) para revenda."},
-  "Florestal": {origin:"Brasil",founded:"-",desc:"Fabricante nacional de chicletes (Happy Bol, Cliss) e marshmallows. Produtos mais acessíveis do segmento, presentes em lojas de conveniência e atacado."},
-  "Docile": {origin:"Brasil (Lajeado, RS)",founded:"1949",desc:"Uma das maiores fabricantes de balas e gomas do Brasil. Produz balas de gelatina, canudinho e marshmallows. Presente em mais de 40 países."},
-  "Biba": {origin:"Brasil",founded:"-",desc:"Marca especializada em doces típicos brasileiros: pingo de leite, pé de moça e chupa leite em embalagens de 50 unidades. Referência no segmento de doces tradicionais."},
+// ═══════════════════════════════════════════════
+//  FIREBASE INIT
+// ═══════════════════════════════════════════════
+const firebaseConfig = {
+  databaseURL: "https://catalogobase-96f50-default-rtdb.firebaseio.com/"
 };
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
+// ═══════════════════════════════════════════════
+//  STATIC DATA
+// ═══════════════════════════════════════════════
 const categories = [
-  {id:"all", label:"Todos", icon:"✦"},
-  {id:"pacoca", label:"Paçocas", icon:"🥜"},
-  {id:"doces-tipicos", label:"Doces Típicos", icon:"🍬"},
-  {id:"amendoim-pe", label:"Amendoim & Pé de Moleque", icon:"🌰"},
-  {id:"bananada", label:"Bananadas", icon:"🍌"},
-  {id:"biscoito-salgado", label:"Biscoitos & Salgadinhos", icon:"🥨"},
-  {id:"pipoca", label:"Pipocas", icon:"🍿"},
-  {id:"chiclete-pastilha", label:"Chicletes & Pastilhas", icon:"💬"},
-  {id:"bala-goma", label:"Balas & Gomas", icon:"🍭"},
-  {id:"marshmallow", label:"Marshmallows", icon:"☁️"},
-  {id:"pirulito", label:"Pirulitos", icon:"🎯"},
-  {id:"chocolate", label:"Chocolates & Importados", icon:"🍫"},
-  {id:"marcas", label:"Sobre as Marcas", icon:"★"},
+  {id:"all",label:"Todos",icon:"✦"},
+  {id:"pacoca",label:"Paçocas",icon:"🥜"},
+  {id:"doces-tipicos",label:"Doces Típicos",icon:"🍬"},
+  {id:"amendoim-pe",label:"Amendoim & Pé de Moleque",icon:"🌰"},
+  {id:"bananada",label:"Bananadas",icon:"🍌"},
+  {id:"biscoito-salgado",label:"Biscoitos & Salgadinhos",icon:"🥨"},
+  {id:"pipoca",label:"Pipocas",icon:"🍿"},
+  {id:"chiclete-pastilha",label:"Chicletes & Pastilhas",icon:"💬"},
+  {id:"bala-goma",label:"Balas & Gomas",icon:"🍭"},
+  {id:"marshmallow",label:"Marshmallows",icon:"☁️"},
+  {id:"pirulito",label:"Pirulitos",icon:"🎯"},
+  {id:"chocolate",label:"Chocolates & Importados",icon:"🍫"},
+  {id:"marcas",label:"Marcas",icon:"★"},
 ];
 
+const brands = {
+  "Santa Helena":{origin:"Brasil (Taboão da Serra, SP)",founded:"1955",desc:"Líder nacional em paçoca, amendoim e doces de amendoim. A Paçoquita é o produto mais vendido no segmento há mais de 25 anos."},
+  "Fini":{origin:"Espanha (1971) · Fábrica BR em Jundiaí, SP",founded:"1971",desc:"Maior marca de balas de goma do mundo. 70% de market share em balas de gelatina no Brasil. Presente em 100+ países."},
+  "Arcor":{origin:"Argentina (Córdoba, 1951)",founded:"1951",desc:"Maior fabricante de balas da América Latina. Presente em 120+ países."},
+  "Rapa Nui":{origin:"Argentina (Bariloche, 1939)",founded:"1939",desc:"Marca premium argentina com tradição italiana de chocolates artesanais."},
+  "Trident":{origin:"EUA (Mondelēz)",founded:"1960",desc:"Chiclete funcional sem açúcar com xilitol — anticáries. Líder mundial no segmento premium."},
+  "Mentos":{origin:"Holanda (Perfetti Van Melle, 1948)",founded:"1948",desc:"Pastilha mastigável icônica em múltiplos formatos — rolinho, garrafa e chiclete."},
+  "Tic Tac":{origin:"Itália (Ferrero, 1969)",founded:"1969",desc:"2 kcal por unidade. Embalagem flip-top icônica desde o lançamento."},
+  "Halls":{origin:"EUA (Mondelēz)",founded:"1930",desc:"Drops refrescantes com mentol. Auxiliar respiratório de presença global."},
+  "KitKat":{origin:"Reino Unido (Nestlé, 1935)",founded:"1935",desc:"Wafer com chocolate ao leite. Uma das barras mais vendidas do mundo."},
+  "Snickers":{origin:"EUA (Mars Inc., 1930)",founded:"1930",desc:"Amendoim, caramelo, nougat e chocolate ao leite. ~480 kcal por barra de 42g."},
+  "M&M's":{origin:"EUA (Mars Inc., 1941)",founded:"1941",desc:"Confeitos de chocolate com casca colorida. Disponível em pack individual e caixa para revenda."},
+  "Florestal":{origin:"Brasil",founded:"-",desc:"Fabricante nacional de chicletes (Happy Bol, Cliss) e marshmallows. Linha acessível."},
+  "Docile":{origin:"Brasil (Lajeado, RS)",founded:"1949",desc:"Uma das maiores fabricantes de balas do Brasil. Presente em 40+ países."},
+  "Biba":{origin:"Brasil",founded:"-",desc:"Especializada em doces típicos: pingo de leite, pé de moça e chupa leite."},
+};
 
-/*const products = [
-  
-  {cat:"pacoca", name:"Paçoquita Rolha", brand:"Santa Helena", tags:["b","g"], tagLabels:["Sem Glúten","Líder Nacional"], qty:100, unit:"Rolha 18g", price:32.99, ppu:0.33, kgPrice:18.33, nutri:{kcal:103,prot:"3,5g",carb:"9,7g",gord:"5,6g"}, obs:"Ingredientes: Amendoim torrado, açúcar e sal. Não contém glúten."},
-  {cat:"pacoca", name:"Paçoquita Quadrada", brand:"Santa Helena", tags:["b","g"], tagLabels:["Sem Glúten","Líder Nacional"], qty:50, unit:"Quad 20g", price:26.99, ppu:0.54, kgPrice:26.99, nutri:{kcal:103,prot:"3,5g",carb:"9,7g",gord:"5,6g"}, obs:"Formato quadrado. Mesma receita original."},
-  {cat:"pacoca", name:"Paçoquita Rolhão", brand:"Santa Helena", tags:["b","g","a"], tagLabels:["Sem Glúten","Premium","Grande"], qty:20, unit:"Rolhão grande", price:30.99, ppu:1.55, kgPrice:null, obs:"Formato jumbo — porção maior. Ideal para consumo adulto."},
-  {cat:"pacoca", name:"Paçoca Rolha", brand:"Moreninha do Rio", tags:["g"], tagLabels:["Econômica"], qty:100, unit:"Rolha", price:22.99, ppu:0.23, kgPrice:null},
-  {cat:"pacoca", name:"Paçoca Quadrada", brand:"Moreninha do Rio", tags:[], tagLabels:[], qty:50, unit:"Quad", price:21.69, ppu:0.43, kgPrice:null},
-  {cat:"pacoca", name:"Paçoca Rolhão", brand:"Moreninha do Rio", tags:[], tagLabels:[], qty:20, unit:"Rolhão", price:18.99, ppu:0.95, kgPrice:null},
-  {cat:"pacoca", name:"Paçoca Rolha", brand:"Riquita", tags:["g"], tagLabels:["Econômica"], qty:100, unit:"Rolha", price:22.99, ppu:0.23, kgPrice:null},
-  {cat:"pacoca", name:"Paçoca Rolha", brand:"Daal", tags:[], tagLabels:[], variants:[{desc:"100 unidades",price:23.49,ppu:0.23},{desc:"50 unidades",price:16.99,ppu:0.34}]},
-  {cat:"pacoca", name:"Paçoca Rolha", brand:"JW", tags:[], tagLabels:[], qty:20, unit:"Rolha", price:17.99, ppu:0.90, kgPrice:null},
+// Base seed — carregado somente quando o banco está vazio
+const SEED = [
+  {cat:"pacoca",name:"Paçoquita Rolha",brand:"Santa Helena",tags:["b","g"],tagLabels:["Sem Glúten","Líder Nacional"],qty:100,unit:"Rolha 18g",price:32.99,ppu:0.33,nutri:{kcal:103,prot:"3,5g",carb:"9,7g",gord:"5,6g"},obs:"Amendoim torrado, açúcar e sal. Não contém glúten."},
+  {cat:"pacoca",name:"Paçoquita Quadrada",brand:"Santa Helena",tags:["b","g"],tagLabels:["Sem Glúten","Líder Nacional"],qty:50,unit:"Quad 20g",price:26.99,ppu:0.54,nutri:{kcal:103,prot:"3,5g",carb:"9,7g",gord:"5,6g"},obs:"Formato quadrado. Mesma receita original."},
+  {cat:"pacoca",name:"Paçoquita Rolhão",brand:"Santa Helena",tags:["a","g"],tagLabels:["Premium","Grande"],qty:20,unit:"Rolhão",price:30.99,ppu:1.55},
+  {cat:"pacoca",name:"Paçoca Rolha",brand:"Moreninha do Rio",tags:["g"],tagLabels:["Econômica"],qty:100,unit:"Rolha",price:22.99,ppu:0.23},
+  {cat:"pacoca",name:"Paçoca Quadrada",brand:"Moreninha do Rio",tags:[],tagLabels:[],qty:50,unit:"Quad",price:21.69,ppu:0.43},
+  {cat:"pacoca",name:"Paçoca Rolhão",brand:"Moreninha do Rio",tags:[],tagLabels:[],qty:20,unit:"Rolhão",price:18.99,ppu:0.95},
+  {cat:"pacoca",name:"Paçoca Rolha",brand:"Riquita",tags:["g"],tagLabels:["Econômica"],qty:100,unit:"Rolha",price:22.99,ppu:0.23},
+  {cat:"pacoca",name:"Paçoca Rolha 100un",brand:"Daal",tags:[],tagLabels:[],qty:100,unit:"Rolha",price:23.49,ppu:0.23},
+  {cat:"pacoca",name:"Paçoca Rolha 50un",brand:"Daal",tags:[],tagLabels:[],qty:50,unit:"Rolha",price:16.99,ppu:0.34},
+  {cat:"pacoca",name:"Paçoca Rolha",brand:"JW",tags:[],tagLabels:[],qty:20,unit:"Rolha",price:17.99,ppu:0.90},
+  {cat:"doces-tipicos",name:"Doce de Leite (sortido)",brand:"Rapa Nui",tags:["p"],tagLabels:["Argentina"],qty:20,unit:"un.",price:17.99,ppu:0.90},
+  {cat:"doces-tipicos",name:"Torrone",brand:"Rapa Nui",tags:["p"],tagLabels:["Argentina"],qty:20,unit:"un.",price:17.99,ppu:0.90,obs:"Doce clássico italiano-mediterrâneo à base de mel, açúcar e amendoim."},
+  {cat:"doces-tipicos",name:"Doce de Abóbora Coração",brand:"Rapa Nui",tags:["p"],tagLabels:["Argentina"],qty:20,unit:"un.",price:23.99,ppu:1.20},
+  {cat:"doces-tipicos",name:"Quebra Queixo Grande",brand:"Max",tags:["a"],tagLabels:["Premium"],qty:20,unit:"Grande",price:31.90,ppu:1.60},
+  {cat:"doces-tipicos",name:"Quebra Queixo Especial",brand:"Max",tags:[],tagLabels:[],qty:50,unit:"un.",price:15.99,ppu:0.32},
+  {cat:"doces-tipicos",name:"Pé de Moleque",brand:"Santa Helena",tags:[],tagLabels:[],qty:47,unit:"un.",price:27.19,ppu:0.58},
+  {cat:"doces-tipicos",name:"Caseirão de Amendoim",brand:"Santa Helena",tags:["a"],tagLabels:["Premium"],qty:20,unit:"un.",price:29.99,ppu:1.50},
+  {cat:"doces-tipicos",name:"Cajuzinho",brand:"Doce Sonho",tags:[],tagLabels:[],qty:20,unit:"un.",price:17.99,ppu:0.90,obs:"Doce de amendoim no formato de caju. Clássico brasileiro."},
+  {cat:"doces-tipicos",name:"Pé de Moça",brand:"Doce Sonho",tags:[],tagLabels:[],qty:20,unit:"un.",price:17.99,ppu:0.90},
+  {cat:"doces-tipicos",name:"Doce de Abóbora",brand:"Doce Sonho",tags:[],tagLabels:[],qty:20,unit:"un.",price:17.99,ppu:0.90},
+  {cat:"doces-tipicos",name:"Cajuzinho",brand:"Doce de Minas",tags:[],tagLabels:[],qty:20,unit:"un.",price:16.99,ppu:0.85},
+  {cat:"doces-tipicos",name:"Sortido (Geleia/Bananada/Molecão/Batata Doce/Abóbora)",brand:"Doce de Minas",tags:[],tagLabels:[],qty:20,unit:"un.",price:16.99,ppu:0.85,obs:"5 sabores numa só embalagem."},
+  {cat:"doces-tipicos",name:"Sortido 7 sabores",brand:"Tony Kelly",tags:[],tagLabels:[],qty:20,unit:"un.",price:17.49,ppu:0.87,obs:"Pé de Moça, Batata Doce, Frutas, Molecão, Banana, Paçoca, Abóbora."},
+  {cat:"doces-tipicos",name:"Pé de Moça Grande",brand:"Reis",tags:["a"],tagLabels:["Grande"],qty:20,unit:"Grande",price:26.39,ppu:1.32},
+  {cat:"doces-tipicos",name:"Pingo de Leite",brand:"Rossetto",tags:[],tagLabels:[],qty:50,unit:"un.",price:15.49,ppu:0.31},
+  {cat:"doces-tipicos",name:"Pingo de Leite Regular",brand:"Biba",tags:[],tagLabels:[],qty:50,unit:"un.",price:17.99,ppu:0.36},
+  {cat:"doces-tipicos",name:"Pingo de Leite Grande",brand:"Biba",tags:["a"],tagLabels:["Grande"],qty:50,unit:"un.",price:34.89,ppu:0.70},
+  {cat:"doces-tipicos",name:"Pé de Moça",brand:"Biba",tags:[],tagLabels:[],qty:50,unit:"un.",price:24.99,ppu:0.50},
+  {cat:"doces-tipicos",name:"Chupa Leite",brand:"Rossetto",tags:[],tagLabels:[],qty:50,unit:"un.",price:22.79,ppu:0.46},
+  {cat:"doces-tipicos",name:"Chupa Leite",brand:"Biba",tags:[],tagLabels:[],qty:50,unit:"un.",price:23.99,ppu:0.48},
+  {cat:"doces-tipicos",name:"Geladinho",brand:"Genérico",tags:[],tagLabels:[],qty:20,unit:"un.",price:8.99,ppu:0.45},
+  {cat:"amendoim-pe",name:"Amendoim (caixa)",brand:"Santa Helena",tags:["g"],tagLabels:["Sem Glúten"],qty:60,unit:"un.",price:33.79,ppu:0.56},
+  {cat:"amendoim-pe",name:"Doce de Amendoim Caseirão 1,65kg",brand:"Santa Helena",tags:[],tagLabels:["1,65 kg"],qty:30,unit:"un.",price:29.49,ppu:0.98,kgPrice:17.87,obs:"Melhor preço/kg da linha Santa Helena."},
+  {cat:"amendoim-pe",name:"Doce de Amendoim 1,5kg",brand:"Santa Helena",tags:[],tagLabels:["1,5 kg"],qty:30,unit:"un.",price:29.79,ppu:0.99,kgPrice:19.86},
+  {cat:"amendoim-pe",name:"Pé de Moleque 50un",brand:"Santa Helena",tags:[],tagLabels:[],qty:50,unit:"un.",price:29.79,ppu:0.60},
+  {cat:"amendoim-pe",name:"Doce de Amendoim",brand:"Gibi",tags:[],tagLabels:[],qty:50,unit:"un.",price:29.49,ppu:0.59},
+  {cat:"amendoim-pe",name:"Pé de Moleque",brand:"Molecão do Rio",tags:["g"],tagLabels:["1 kg"],qty:50,unit:"un.",price:15.49,ppu:0.31,kgPrice:15.49,obs:"Melhor custo-benefício: R$15,49/kg."},
+  {cat:"amendoim-pe",name:"Paçoca Caseira",brand:"Moreninha do Rio",tags:[],tagLabels:["1,3 kg"],qty:50,unit:"un.",price:20.99,ppu:0.42,kgPrice:16.15},
+  {cat:"bananada",name:"Bananada",brand:"Três Amigos",tags:[],tagLabels:[],qty:20,unit:"300g",price:5.69,ppu:0.28,kgPrice:18.97},
+  {cat:"bananada",name:"Bananada",brand:"Ingrid",tags:["g"],tagLabels:["Melhor preço/kg"],qty:50,unit:"3 kg",price:38.49,ppu:0.77,kgPrice:12.83,obs:"R$12,83/kg — atacado 3 kg."},
+  {cat:"bananada",name:"Bananada",brand:"Mariola",tags:[],tagLabels:[],qty:50,unit:"3 kg",price:42.69,ppu:0.85,kgPrice:14.23},
+  {cat:"bananada",name:"Bananada",brand:"Sabor Legal",tags:[],tagLabels:[],qty:50,unit:"800g",price:11.99,ppu:0.24,kgPrice:14.99},
+  {cat:"biscoito-salgado",name:"Biscoito de Polvilho",brand:"Gostoso",tags:[],tagLabels:[],qty:20,unit:"un.",price:25.49,ppu:1.27},
+  {cat:"biscoito-salgado",name:"Biscoito Fofura",brand:"Fofura",tags:[],tagLabels:[],qty:10,unit:"un.",price:16.99,ppu:1.70},
+  {cat:"biscoito-salgado",name:"Torcida 35g",brand:"Lucky",tags:[],tagLabels:[],qty:1,unit:"35g",price:1.19},
+  {cat:"biscoito-salgado",name:"Torcida 60g",brand:"Lucky",tags:[],tagLabels:[],qty:1,unit:"60g",price:1.69},
+  {cat:"biscoito-salgado",name:"Salgadinho Bigs",brand:"Bigs",tags:[],tagLabels:[],qty:10,unit:"40g cada",price:9.19,ppu:0.92},
+  {cat:"pipoca",name:"Pipoca Pronta",brand:"Aritana",tags:[],tagLabels:[],qty:50,unit:"10g",price:15.49,ppu:0.31,kgPrice:30.98},
+  {cat:"pipoca",name:"Pipoca Pronta 10g",brand:"Frank",tags:["g"],tagLabels:["Mais Barato"],qty:50,unit:"10g",price:12.99,ppu:0.26,obs:"Melhor preço absoluto em pipoca pronta."},
+  {cat:"pipoca",name:"Pipoca Pronta 40g",brand:"Frank",tags:[],tagLabels:[],qty:25,unit:"40g",price:20.79,ppu:0.83},
+  {cat:"pipoca",name:"Pipoca Pronta 60g",brand:"Frank",tags:[],tagLabels:[],qty:13,unit:"60g",price:14.39,ppu:1.11},
+  {cat:"pipoca",name:"Pipoca Pronta 40g",brand:"Trigomil",tags:[],tagLabels:[],qty:25,unit:"40g",price:19.49,ppu:0.78},
+  {cat:"pipoca",name:"Pipoca Pronta 70g",brand:"Trigomil",tags:[],tagLabels:[],qty:10,unit:"70g",price:17.69,ppu:1.77},
+  {cat:"pipoca",name:"Pipoca Pronta 40g",brand:"Kerus",tags:["a"],tagLabels:["Premium"],qty:25,unit:"40g",price:27.99,ppu:1.12},
+  {cat:"pipoca",name:"Pipoca Pronta 80g",brand:"Kerus",tags:["a"],tagLabels:["Premium"],qty:10,unit:"80g",price:21.59,ppu:2.16},
+  {cat:"chiclete-pastilha",name:"Chiclete Flics",brand:"Arcor",tags:[],tagLabels:[],qty:12,unit:"204g",price:7.99,ppu:0.67},
+  {cat:"chiclete-pastilha",name:"Chiclete Big Big",brand:"Arcor",tags:["g"],tagLabels:["Econômico"],qty:90,unit:"315g",price:7.89,ppu:0.09},
+  {cat:"chiclete-pastilha",name:"Chiclete Zumbis",brand:"Arcor",tags:[],tagLabels:[],qty:75,unit:"337g",price:10.49,ppu:0.14},
+  {cat:"chiclete-pastilha",name:"Chiclete Plutonita",brand:"Arcor",tags:[],tagLabels:[],qty:36,unit:"180g",price:6.49,ppu:0.18},
+  {cat:"chiclete-pastilha",name:"Chiclete Posh",brand:"Arcor",tags:[],tagLabels:[],qty:40,unit:"200g",price:5.69,ppu:0.14},
+  {cat:"chiclete-pastilha",name:"Chiclete Buzzy",brand:"Riclan",tags:[],tagLabels:[],qty:40,unit:"180g",price:4.99,ppu:0.12},
+  {cat:"chiclete-pastilha",name:"Chiclete Buzzy c/ Tatuagem",brand:"Riclan",tags:[],tagLabels:["90 un."],qty:90,unit:"360g",price:8.19,ppu:0.09},
+  {cat:"chiclete-pastilha",name:"Chiclete Bump",brand:"Peccin",tags:["g"],tagLabels:["Mais Barato"],qty:40,unit:"140g",price:3.99,ppu:0.10},
+  {cat:"chiclete-pastilha",name:"Chiclete Bling",brand:"Peccin",tags:[],tagLabels:[],qty:40,unit:"200g",price:6.79,ppu:0.17},
+  {cat:"chiclete-pastilha",name:"Chiclete Happy Bol",brand:"Florestal",tags:[],tagLabels:[],qty:46,unit:"140g",price:4.69,ppu:0.10},
+  {cat:"chiclete-pastilha",name:"Chiclete Cliss",brand:"Florestal",tags:[],tagLabels:[],qty:67,unit:"201g",price:7.39,ppu:0.11},
+  {cat:"chiclete-pastilha",name:"Chiclete Bubbaloo",brand:"Bubbaloo",tags:["a"],tagLabels:["Premium"],qty:60,unit:"300g",price:16.99,ppu:0.28},
+  {cat:"chiclete-pastilha",name:"Chiclets",brand:"Adams",tags:["a"],tagLabels:["Premium"],qty:100,unit:"280g",price:28.99,ppu:0.29},
+  {cat:"chiclete-pastilha",name:"Chiclete",brand:"Fini",tags:[],tagLabels:[],qty:72,unit:"250g",price:14.99,ppu:0.21},
+  {cat:"chiclete-pastilha",name:"Pastilha Mentos Rolinho",brand:"Mentos",tags:["b"],tagLabels:["Holanda"],qty:16,unit:"un.",price:28.99,ppu:1.81},
+  {cat:"chiclete-pastilha",name:"Mentos Garrafa",brand:"Mentos",tags:["b","a"],tagLabels:["Holanda","Premium"],qty:6,unit:"un.",price:56.19,ppu:9.37},
+  {cat:"chiclete-pastilha",name:"Mentos Chiclete 120g",brand:"Mentos",tags:["b"],tagLabels:["Holanda"],qty:60,unit:"120g",price:12.99,ppu:0.22},
+  {cat:"chiclete-pastilha",name:"Mentos Chiclete Grande",brand:"Mentos",tags:["b"],tagLabels:["Holanda"],qty:15,unit:"127g",price:23.49,ppu:1.57},
+  {cat:"chiclete-pastilha",name:"Chiclete Trident 170g",brand:"Trident",tags:["r","b"],tagLabels:["Sem Açúcar","Xilitol"],qty:21,unit:"170g",price:37.99,ppu:1.81},
+  {cat:"chiclete-pastilha",name:"Chiclete Trident Grande",brand:"Trident",tags:["r","b"],tagLabels:["Sem Açúcar","Xilitol"],qty:14,unit:"230g",price:41.99,ppu:3.00},
+  {cat:"chiclete-pastilha",name:"Chiclete Trident Enorme",brand:"Trident",tags:["r","b"],tagLabels:["Sem Açúcar","Xilitol"],qty:12,unit:"300g",price:66.49,ppu:5.54},
+  {cat:"chiclete-pastilha",name:"Pastilha Tic Tac",brand:"Tic Tac",tags:["b"],tagLabels:["Ferrero"],qty:14,unit:"un.",price:35.49,ppu:2.54,obs:"2 kcal por unidade."},
+  {cat:"chiclete-pastilha",name:"Pastilha Tic Tac Grande",brand:"Tic Tac",tags:["b","a"],tagLabels:["Ferrero","Grande"],qty:8,unit:"un.",price:78.89,ppu:9.86},
+  {cat:"chiclete-pastilha",name:"Pastilha Hortelã",brand:"Garoto",tags:["g"],tagLabels:["400 un."],qty:400,unit:"680g",price:40.99,ppu:0.10},
+  {cat:"chiclete-pastilha",name:"Halls (drops)",brand:"Halls",tags:[],tagLabels:["Mentol"],qty:21,unit:"un.",price:25.79,ppu:1.23},
+  {cat:"chiclete-pastilha",name:"Freegells",brand:"Freegells",tags:[],tagLabels:[],qty:12,unit:"un.",price:8.99,ppu:0.75},
+  {cat:"bala-goma",name:"Bala Skate Mastigável",brand:"Skate",tags:[],tagLabels:[],qty:50,unit:"un.",price:19.49,ppu:0.39},
+  {cat:"bala-goma",name:"Bala Sticka Mastigável",brand:"Sticka",tags:[],tagLabels:[],qty:40,unit:"un.",price:12.99,ppu:0.32},
+  {cat:"bala-goma",name:"Goma Jujuba 30un",brand:"Gomutcho",tags:[],tagLabels:[],qty:30,unit:"un.",price:17.49,ppu:0.58},
+  {cat:"bala-goma",name:"Goma Jujuba 1kg",brand:"Gomutcho",tags:[],tagLabels:[],qty:1,unit:"1 kg",price:15.99},
+  {cat:"bala-goma",name:"Goma Jujuba",brand:"Simogomas",tags:["g"],tagLabels:["Econômica"],qty:30,unit:"un.",price:13.49,ppu:0.45},
+  {cat:"bala-goma",name:"Goma Jujuba 30un",brand:"Gomets",tags:[],tagLabels:[],qty:30,unit:"un.",price:18.99,ppu:0.63},
+  {cat:"bala-goma",name:"Goma Jujuba 1kg",brand:"Gomets",tags:[],tagLabels:[],qty:1,unit:"1 kg",price:16.59},
+  {cat:"bala-goma",name:"Goma Jujuba 30un",brand:"Docigoma",tags:[],tagLabels:[],qty:30,unit:"un.",price:18.99,ppu:0.63},
+  {cat:"bala-goma",name:"Bala Goma Mini",brand:"Docigoma",tags:[],tagLabels:[],qty:24,unit:"un.",price:10.99,ppu:0.46},
+  {cat:"bala-goma",name:"Goma Jujuba 900g",brand:"Docigoma",tags:[],tagLabels:[],qty:1,unit:"900g",price:14.99},
+  {cat:"bala-goma",name:"Bala de Gelatina 12un",brand:"Dori",tags:[],tagLabels:[],qty:12,unit:"×13g",price:8.69,ppu:0.72},
+  {cat:"bala-goma",name:"Bala Disqueti 24un",brand:"Dori",tags:["a"],tagLabels:["Premium"],qty:24,unit:"×18g",price:33.39,ppu:1.39},
+  {cat:"bala-goma",name:"Bala Disqueti 120g",brand:"Dori",tags:[],tagLabels:[],qty:1,unit:"120g",price:7.99},
+  {cat:"bala-goma",name:"Canudinho",brand:"Dori",tags:[],tagLabels:[],qty:12,unit:"×17g",price:7.39,ppu:0.62},
+  {cat:"bala-goma",name:"Bala de Gelatina",brand:"Docile",tags:[],tagLabels:[],qty:12,unit:"×15g",price:7.49,ppu:0.62},
+  {cat:"bala-goma",name:"Canudinho",brand:"Docile",tags:[],tagLabels:[],qty:12,unit:"×15g",price:6.99,ppu:0.58},
+  {cat:"bala-goma",name:"Bala de Gelatina",brand:"Fini",tags:["b"],tagLabels:["Espanha"],qty:12,unit:"×15g",price:9.39,ppu:0.78,obs:"Fini: 70% de market share em balas de gelatina no Brasil."},
+  {cat:"bala-goma",name:"Canudinho",brand:"Fini",tags:["b"],tagLabels:["Espanha"],qty:12,unit:"×15g",price:8.39,ppu:0.70},
+  {cat:"bala-goma",name:"Fini Variados 80g",brand:"Fini",tags:["b"],tagLabels:["Espanha"],qty:1,unit:"80g",price:6.39},
+  {cat:"bala-goma",name:"Fini Variados 250g",brand:"Fini",tags:["b"],tagLabels:["Espanha"],qty:1,unit:"250g",price:12.49},
+  {cat:"bala-goma",name:"Fini Variados 500g",brand:"Fini",tags:["b"],tagLabels:["Espanha"],qty:1,unit:"500g",price:23.99},
+  {cat:"bala-goma",name:"Tortuguitas",brand:"Arcor",tags:[],tagLabels:[],qty:24,unit:"11,5g",price:27.99,ppu:1.17,obs:"Confeitos de chocolate em formato de tartaruga."},
+  {cat:"bala-goma",name:"Bala 7Belo",brand:"7Belo",tags:[],tagLabels:["100 un."],qty:100,unit:"500g",price:10.49,ppu:0.10},
+  {cat:"bala-goma",name:"Bala Buffer Toffees",brand:"Buffer",tags:[],tagLabels:[],qty:70,unit:"400g",price:16.49,ppu:0.24},
+  {cat:"bala-goma",name:"Bala Sortida",brand:"Dori",tags:[],tagLabels:[],qty:120,unit:"600g",price:10.39,ppu:0.09},
+  {cat:"bala-goma",name:"Bala Sortida",brand:"Peccin",tags:["g"],tagLabels:["Econômica"],qty:80,unit:"400g",price:5.99,ppu:0.07},
+  {cat:"bala-goma",name:"Bala Sortida",brand:"Erlan",tags:[],tagLabels:[],qty:100,unit:"500g",price:6.99,ppu:0.07},
+  {cat:"bala-goma",name:"Bala Joice",brand:"Joice",tags:[],tagLabels:[],qty:75,unit:"500g",price:9.69,ppu:0.13},
+  {cat:"bala-goma",name:"Bala Juquinha",brand:"Juquinha",tags:[],tagLabels:[],qty:100,unit:"500g",price:10.79,ppu:0.11},
+  {cat:"bala-goma",name:"Bala Paçoquita",brand:"Santa Helena",tags:[],tagLabels:[],qty:95,unit:"500g",price:12.49,ppu:0.13},
+  {cat:"bala-goma",name:"Bala Sortida",brand:"Florestal",tags:[],tagLabels:[],qty:100,unit:"500g",price:7.29,ppu:0.07},
+  {cat:"bala-goma",name:"Bala Pintaton",brand:"Pintaton",tags:["p"],tagLabels:["350 un."],qty:350,unit:"2 kg",price:26.99,ppu:0.08},
+  {cat:"bala-goma",name:"Bala Piteco",brand:"Piteco",tags:["p"],tagLabels:["500 un."],qty:500,unit:"un.",price:22.99,ppu:0.05,obs:"Mais barata por unidade: R$0,05/un."},
+  {cat:"marshmallow",name:"Marshmallow",brand:"Florestal",tags:["g"],tagLabels:["Mais Barato"],qty:35,unit:"220g",price:6.29,ppu:0.18},
+  {cat:"marshmallow",name:"Marshmallow",brand:"Docile",tags:[],tagLabels:[],qty:35,unit:"220g",price:7.49,ppu:0.21},
+  {cat:"marshmallow",name:"Marshmallow",brand:"Fini",tags:["b"],tagLabels:["Espanha"],qty:28,unit:"250g",price:7.49,ppu:0.27},
+  {cat:"pirulito",name:"Pirulito Fruit Pop",brand:"Fruit Pop",tags:["g"],tagLabels:["Mais Barato"],qty:50,unit:"300g",price:5.29,ppu:0.11},
+  {cat:"pirulito",name:"Pirulito Fun Pito",brand:"Fun Pito",tags:[],tagLabels:[],qty:50,unit:"500g",price:9.29,ppu:0.19},
+  {cat:"pirulito",name:"Pirulito 7Belo",brand:"7Belo",tags:[],tagLabels:[],qty:50,unit:"500g",price:10.49,ppu:0.21},
+  {cat:"pirulito",name:"Pirulito BigMax",brand:"BigMax",tags:["a"],tagLabels:["Jumbo"],qty:24,unit:"600g",price:10.99,ppu:0.46},
+  {cat:"pirulito",name:"Pirulito Cherry Pop",brand:"Cherry Pop",tags:[],tagLabels:[],qty:50,unit:"700g",price:17.49,ppu:0.35},
+  {cat:"pirulito",name:"Pirulito Bling",brand:"Peccin",tags:[],tagLabels:[],qty:24,unit:"672g",price:12.99,ppu:0.54},
+  {cat:"chocolate",name:"M&M's 132g",brand:"Mars",tags:["b"],tagLabels:["EUA"],qty:1,unit:"132g",price:10.99},
+  {cat:"chocolate",name:"M&M's (caixa 18un)",brand:"Mars",tags:["b","a"],tagLabels:["EUA","Importado"],qty:18,unit:"×40g",price:62.99,ppu:3.50},
+  {cat:"chocolate",name:"KitKat (caixa 24un)",brand:"Nestlé",tags:["b","a"],tagLabels:["Reino Unido","Importado"],qty:24,unit:"41,5g",price:87.39,ppu:3.64,obs:"Produto mais caro do catálogo. Wafer clássico desde 1935."},
+  {cat:"chocolate",name:"Snickers (caixa 20un)",brand:"Mars",tags:["b","a"],tagLabels:["EUA","Importado"],qty:20,unit:"42g",price:62.99,ppu:3.15,obs:"Amendoim, caramelo, nougat e chocolate. ~480 kcal/barra."},
+];
 
-  
-  {cat:"doces-tipicos", name:"Doce de Leite (sortido)", brand:"Rapa Nui", tags:["p"], tagLabels:["Argentina"], qty:20, unit:"un.", price:17.99, ppu:0.90, obs:"Linha clássica: geleia de mocotó e variados. Qualidade e tradição argentina."},
-  {cat:"doces-tipicos", name:"Torrone", brand:"Rapa Nui", tags:["p"], tagLabels:["Argentina"], qty:20, unit:"un.", price:17.99, ppu:0.90, obs:"Doce clássico italiano-mediterrâneo à base de mel, açúcar e amendoim/castanhas. A Rapa Nui é marca argentina premium de Bariloche."},
-  {cat:"doces-tipicos", name:"Doce de Abóbora Coração", brand:"Rapa Nui", tags:["p"], tagLabels:["Argentina"], qty:20, unit:"un.", price:23.99, ppu:1.20, obs:"Versão premium em formato coração. Preço/un mais alto da linha Rapa Nui."},
-  {cat:"doces-tipicos", name:"Quebra Queixo Grande", brand:"Max", tags:["a"], tagLabels:["Premium"], qty:20, unit:"Grande", price:31.90, ppu:1.60, obs:"Doce de amendoim extremamente firme. Preço/un de R$1,60 — o mais caro da categoria."},
-  {cat:"doces-tipicos", name:"Quebra Queixo Especial", brand:"Max", tags:[], tagLabels:[], qty:50, unit:"un.", price:15.99, ppu:0.32, obs:"Versão menor do quebra queixo. Melhor custo-benefício."},
-  {cat:"doces-tipicos", name:"Pé de Moleque", brand:"Santa Helena", tags:["g"], tagLabels:["Clássico"], qty:47, unit:"un.", price:27.19, ppu:0.58, obs:"Doce de amendoim com rapadura/melado. Clássico brasileiro."},
-  {cat:"doces-tipicos", name:"Caseirão de Amendoim", brand:"Santa Helena", tags:["a"], tagLabels:["Premium"], qty:20, unit:"un.", price:29.99, ppu:1.50, obs:"Doce artesanal de amendoim em formato maior/caseiro."},
-  {cat:"doces-tipicos", name:"Cajuzinho", brand:"Doce Sonho", tags:[], tagLabels:[], qty:20, unit:"un.", price:17.99, ppu:0.90, obs:"Doce de amendoim com formato de caju. Clássico brasileiro, colorido com corante natural."},
-  {cat:"doces-tipicos", name:"Pé de Moça", brand:"Doce Sonho", tags:[], tagLabels:[], qty:20, unit:"un.", price:17.99, ppu:0.90, obs:"Doce de amendoim cremoso em formato de bolinha. Especialidade mineira."},
-  {cat:"doces-tipicos", name:"Doce de Abóbora", brand:"Doce Sonho", tags:[], tagLabels:[], qty:20, unit:"un.", price:17.99, ppu:0.90},
-  {cat:"doces-tipicos", name:"Cajuzinho", brand:"Doce de Minas", tags:[], tagLabels:[], qty:20, unit:"un.", price:16.99, ppu:0.85, obs:"Versão da marca Doce de Minas. R$0,05/un mais barato que Doce Sonho."},
-  {cat:"doces-tipicos", name:"Sortido (Geleia/Bananada/Molecão/Batata Doce/Abóbora)", brand:"Doce de Minas", tags:[], tagLabels:[], qty:20, unit:"un.", price:16.99, ppu:0.85, obs:"5 sabores em uma só embalagem. Ideal para variedade no ponto de venda."},
-  {cat:"doces-tipicos", name:"Sortido (Pé de Moça/Batata Doce/Frutas/Molecão/Banana/Paçoca/Abóbora)", brand:"Tony Kelly", tags:[], tagLabels:[], qty:20, unit:"un.", price:17.49, ppu:0.87, obs:"7 sabores distintos. A opção mais variada em doces típicos."},
-  {cat:"doces-tipicos", name:"Pé de Moça Grande", brand:"Reis", tags:["a"], tagLabels:["Grande"], qty:20, unit:"Grande", price:26.39, ppu:1.32, obs:"Formato maior do pé de moça. R$1,32/un — versão premium da categoria."},
-  {cat:"doces-tipicos", name:"Pingo de Leite", brand:"Rossetto", tags:[], tagLabels:[], qty:50, unit:"un.", price:15.49, ppu:0.31, obs:"Doce de leite cremoso em bolinha. Preço/un entre os mais baixos (R$0,31)."},
-  {cat:"doces-tipicos", name:"Pingo de Leite", brand:"Biba", tags:[], tagLabels:[], variants:[{desc:"50 un. (regular)",price:17.99,ppu:0.36},{desc:"50 un. (grande)",price:34.89,ppu:0.70}]},
-  {cat:"doces-tipicos", name:"Pé de Moça", brand:"Biba", tags:[], tagLabels:[], qty:50, unit:"un.", price:24.99, ppu:0.50},
-  {cat:"doces-tipicos", name:"Chupa Leite", brand:"Rossetto", tags:[], tagLabels:[], qty:50, unit:"un.", price:22.79, ppu:0.46},
-  {cat:"doces-tipicos", name:"Chupa Leite", brand:"Biba", tags:[], tagLabels:[], qty:50, unit:"un.", price:23.99, ppu:0.48},
-  {cat:"doces-tipicos", name:"Geladinho", brand:"Genérico", tags:[], tagLabels:[], qty:20, unit:"un.", price:8.99, ppu:0.45},
-
-  
-  {cat:"amendoim-pe", name:"Amendoim (caixa)", brand:"Santa Helena", tags:["g"], tagLabels:["Sem Glúten"], qty:60, unit:"un.", price:33.79, ppu:0.56, obs:"Embalagens individuais de amendoim torrado e salgado."},
-  {cat:"amendoim-pe", name:"Doce de Amendoim Caseirão", brand:"Santa Helena", tags:["g"], tagLabels:["1,65 kg"], qty:30, unit:"un.", price:29.49, ppu:0.98, kgPrice:17.87, obs:"1,65 kg total. Melhor preço/kg da linha Santa Helena (R$17,87/kg)."},
-  {cat:"amendoim-pe", name:"Doce de Amendoim", brand:"Santa Helena", tags:["g"], tagLabels:["1,5 kg"], qty:30, unit:"un.", price:29.79, ppu:0.99, kgPrice:19.86, obs:"1,5 kg total. Versão padrão."},
-  {cat:"amendoim-pe", name:"Pé de Moleque", brand:"Santa Helena", tags:[], tagLabels:[], qty:50, unit:"un.", price:29.79, ppu:0.60},
-  {cat:"amendoim-pe", name:"Doce de Amendoim", brand:"Gibi", tags:[], tagLabels:[], qty:50, unit:"un.", price:29.49, ppu:0.59},
-  {cat:"amendoim-pe", name:"Pé de Moleque", brand:"Molecão do Rio", tags:["g"], tagLabels:["1 kg"], qty:50, unit:"un.", price:15.49, ppu:0.31, kgPrice:15.49, obs:"Melhor custo-benefício em pé de moleque: R$15,49/kg."},
-  {cat:"amendoim-pe", name:"Paçoca Caseira", brand:"Moreninha do Rio", tags:["g"], tagLabels:["1,3 kg"], qty:50, unit:"un.", price:20.99, ppu:0.42, kgPrice:16.15},
-
-  
-  {cat:"bananada", name:"Bananada", brand:"Três Amigos", tags:[], tagLabels:[], qty:20, unit:"300g", price:5.69, ppu:0.28, kgPrice:18.97, obs:"Embalagem menor, ideal para consumo individual e experimentação."},
-  {cat:"bananada", name:"Bananada", brand:"Ingrid", tags:[], tagLabels:[], qty:50, unit:"3 kg", price:38.49, ppu:0.77, kgPrice:12.83, obs:"Melhor preço/kg das bananadas (R$12,83/kg). Embalagem atacado 3 kg."},
-  {cat:"bananada", name:"Bananada", brand:"Mariola", tags:[], tagLabels:[], qty:50, unit:"3 kg", price:42.69, ppu:0.85, kgPrice:14.23},
-  {cat:"bananada", name:"Bananada", brand:"Sabor Legal", tags:[], tagLabels:[], qty:50, unit:"800g", price:11.99, ppu:0.24, kgPrice:14.99},
-
-  
-  {cat:"biscoito-salgado", name:"Biscoito de Polvilho Gostoso", brand:"Gostoso", tags:[], tagLabels:[], qty:20, unit:"un.", price:25.49, ppu:1.27, obs:"Biscoito de polvilho assado. Clássico brasileiro."},
-  {cat:"biscoito-salgado", name:"Biscoito Fofura", brand:"Fofura", tags:[], tagLabels:[], qty:10, unit:"un.", price:16.99, ppu:1.70, obs:"Preço/un mais alto dos biscoitos (R$1,70). Embalagem menor."},
-  {cat:"biscoito-salgado", name:"Torcida", brand:"Lucky", tags:[], tagLabels:[], variants:[{desc:"35g (unidade)",price:1.19,ppu:null},{desc:"60g (unidade)",price:1.69,ppu:null}], obs:"Salgadinho de milho espiral. Vendido por unidade. Preço atacado variável."},
-  {cat:"biscoito-salgado", name:"Salgadinho Bigs", brand:"Bigs", tags:[], tagLabels:[], qty:10, unit:"40g cada", price:9.19, ppu:0.92},
-
-  
-  {cat:"pipoca", name:"Pipoca Pronta", brand:"Aritana", tags:[], tagLabels:[], qty:50, unit:"10g", price:15.49, ppu:0.31, kgPrice:30.98},
-  {cat:"pipoca", name:"Pipoca Pronta", brand:"Frank", tags:[], tagLabels:[], variants:[{desc:"50 un. × 10g",price:12.99,ppu:0.26},{desc:"25 un. × 40g",price:20.79,ppu:0.83},{desc:"13 un. × 60g",price:14.39,ppu:1.11}], obs:"Melhor preço absoluto em pipoca pronta: R$12,99/caixa."},
-  {cat:"pipoca", name:"Pipoca Pronta", brand:"Trigomil", tags:[], tagLabels:[], variants:[{desc:"25 un. × 40g",price:19.49,ppu:0.78},{desc:"10 un. × 70g",price:17.69,ppu:1.77}]},
-  {cat:"pipoca", name:"Pipoca Pronta", brand:"Kerus", tags:["a"], tagLabels:["Premium"], variants:[{desc:"25 un. × 40g",price:27.99,ppu:1.12},{desc:"10 un. × 80g",price:21.59,ppu:2.16}], obs:"Marca premium — R$27,99 para 25 un., a mais cara da categoria."},
-
-  
-  {cat:"chiclete-pastilha", name:"Chiclete Flics", brand:"Arcor", tags:[], tagLabels:[], qty:12, unit:"204g", price:7.99, ppu:0.67},
-  {cat:"chiclete-pastilha", name:"Chiclete Big Big", brand:"Arcor", tags:["g"], tagLabels:["Econômico"], qty:90, unit:"315g", price:7.89, ppu:0.09, obs:"Melhor custo/unidade dos chicletes Arcor: R$0,09/un."},
-  {cat:"chiclete-pastilha", name:"Chiclete Zumbis", brand:"Arcor", tags:[], tagLabels:[], qty:75, unit:"337g", price:10.49, ppu:0.14},
-  {cat:"chiclete-pastilha", name:"Chiclete Plutonita", brand:"Arcor", tags:[], tagLabels:[], qty:36, unit:"180g", price:6.49, ppu:0.18},
-  {cat:"chiclete-pastilha", name:"Chiclete Posh", brand:"Arcor", tags:[], tagLabels:[], qty:40, unit:"200g", price:5.69, ppu:0.14},
-  {cat:"chiclete-pastilha", name:"Chiclete Buzzy", brand:"Riclan", tags:[], tagLabels:[], qty:40, unit:"180g", price:4.99, ppu:0.12},
-  {cat:"chiclete-pastilha", name:"Chiclete Buzzy c/ Tatuagem", brand:"Riclan", tags:["p"], tagLabels:["90 un."], qty:90, unit:"360g", price:8.19, ppu:0.09},
-  {cat:"chiclete-pastilha", name:"Chiclete Bump", brand:"Peccin", tags:["g"], tagLabels:["Mais Barato"], qty:40, unit:"140g", price:3.99, ppu:0.10, obs:"O chiclete mais barato do catálogo: R$3,99/caixa."},
-  {cat:"chiclete-pastilha", name:"Chiclete Bling", brand:"Peccin", tags:[], tagLabels:[], qty:40, unit:"200g", price:6.79, ppu:0.17},
-  {cat:"chiclete-pastilha", name:"Chiclete Happy Bol", brand:"Florestal", tags:[], tagLabels:[], qty:46, unit:"140g", price:4.69, ppu:0.10},
-  {cat:"chiclete-pastilha", name:"Chiclete Cliss", brand:"Florestal", tags:[], tagLabels:[], qty:67, unit:"201g", price:7.39, ppu:0.11},
-  {cat:"chiclete-pastilha", name:"Chiclete Bubbaloo", brand:"Bubbaloo", tags:["p"], tagLabels:["Premium"], qty:60, unit:"300g", price:16.99, ppu:0.28, obs:"Chiclete com recheio líquido. Um dos mais caros do segmento popular."},
-  {cat:"chiclete-pastilha", name:"Chiclets", brand:"Adams", tags:["a"], tagLabels:["Premium"], qty:100, unit:"280g", price:28.99, ppu:0.29, obs:"Adams Chiclets — chiclete clássico americano, pastilha retangular."},
-  {cat:"chiclete-pastilha", name:"Chiclete", brand:"Fini", tags:[], tagLabels:[], qty:72, unit:"250g", price:14.99, ppu:0.21},
-  {cat:"chiclete-pastilha", name:"Pastilha Mentos", brand:"Mentos", tags:["a"], tagLabels:["Holanda"], variants:[{desc:"16 un. (rolinho)",price:28.99,ppu:1.81},{desc:"6 un. (garrafa premium)",price:56.19,ppu:9.37},{desc:"60 un. chiclete 120g",price:12.99,ppu:0.22},{desc:"15 un. chiclete grande 127g",price:23.49,ppu:1.57}], obs:"Garrafa é o formato colecionável/premium. Chiclete 60un é o melhor custo/un."},
-  {cat:"chiclete-pastilha", name:"Chiclete Trident", brand:"Trident", tags:["a","b"], tagLabels:["Sem Açúcar","Xilitol"], variants:[{desc:"21 un. 170g",price:37.99,ppu:1.81},{desc:"14 un. 230g (grande)",price:41.99,ppu:3.00},{desc:"12 un. 300g (enorme)",price:66.49,ppu:5.54}], obs:"Trident sem açúcar com xilitol — recomendado por dentistas. Mais caro por unidade."},
-  {cat:"chiclete-pastilha", name:"Pastilha Tic Tac", brand:"Tic Tac", tags:["b"], tagLabels:["Ferrero"], variants:[{desc:"14 un. (mini)",price:35.49,ppu:2.54},{desc:"8 un. (grande)",price:78.89,ppu:9.86}], obs:"Só 2 kcal por unidade. A garrafa grande (8 un.) = R$9,86/un — mais cara do catálogo."},
-  {cat:"chiclete-pastilha", name:"Pastilha Hortelã", brand:"Garoto", tags:["g"], tagLabels:["400 un."], qty:400, unit:"680g", price:40.99, ppu:0.10, obs:"Melhor custo/un das pastilhas: R$0,10/un. Volume atacado de 680g."},
-  {cat:"chiclete-pastilha", name:"Halls (drops)", brand:"Halls", tags:["p"], tagLabels:["Mentol"], qty:21, unit:"un.", price:25.79, ppu:1.23, obs:"Drops com mentol, auxiliar respiratório. Mondelēz."},
-  {cat:"chiclete-pastilha", name:"Freegells", brand:"Freegells", tags:[], tagLabels:[], qty:12, unit:"un.", price:8.99, ppu:0.75, obs:"Bala gelatinosa com recheio de gel. O mais barato entre drops/freegells."},
-
-  
-  {cat:"bala-goma", name:"Bala Skate Mastigável", brand:"Skate", tags:[], tagLabels:[], qty:50, unit:"un.", price:19.49, ppu:0.39},
-  {cat:"bala-goma", name:"Bala Sticka Mastigável", brand:"Sticka", tags:[], tagLabels:[], qty:40, unit:"un.", price:12.99, ppu:0.32},
-  {cat:"bala-goma", name:"Goma Jujuba", brand:"Gomutcho", tags:[], tagLabels:[], variants:[{desc:"30 un. (display)",price:17.49,ppu:0.58},{desc:"1 kg (granel)",price:15.99,ppu:null}]},
-  {cat:"bala-goma", name:"Goma Jujuba", brand:"Simogomas", tags:["g"], tagLabels:["Econômica"], qty:30, unit:"un.", price:13.49, ppu:0.45},
-  {cat:"bala-goma", name:"Goma Jujuba", brand:"Gomets", tags:[], tagLabels:[], variants:[{desc:"30 un. (display)",price:18.99,ppu:0.63},{desc:"1 kg (granel)",price:16.59,ppu:null}]},
-  {cat:"bala-goma", name:"Goma Jujuba", brand:"Docigoma", tags:[], tagLabels:[], variants:[{desc:"30 un. (display)",price:18.99,ppu:0.63},{desc:"24 un. (mini)",price:10.99,ppu:0.46},{desc:"900g (granel)",price:14.99,ppu:null}]},
-  {cat:"bala-goma", name:"Bala de Gelatina", brand:"Dori", tags:[], tagLabels:[], variants:[{desc:"12 × 13g (156g)",price:8.69,ppu:0.72},{desc:"Disqueti 24 × 18g (432g)",price:33.39,ppu:1.39},{desc:"Disqueti 120g (avulso)",price:7.99,ppu:null},{desc:"Canudinho 12 × 17g (204g)",price:7.39,ppu:0.62}], obs:"Dori é uma das marcas nacionais mais antigas de balas de gelatina."},
-  {cat:"bala-goma", name:"Bala de Gelatina", brand:"Docile", tags:[], tagLabels:[], variants:[{desc:"12 × 15g (180g)",price:7.49,ppu:0.62},{desc:"Canudinho 12 × 15g (180g)",price:6.99,ppu:0.58}]},
-  {cat:"bala-goma", name:"Bala de Gelatina / Chiclete / Marshmallow", brand:"Fini", tags:["b"], tagLabels:["Espanha"], variants:[{desc:"12 × 15g gelatina (180g)",price:9.39,ppu:0.78},{desc:"Canudinho 12 × 15g (180g)",price:8.39,ppu:0.70},{desc:"Variados 80g",price:6.39,ppu:null},{desc:"Variados 250g",price:12.49,ppu:null},{desc:"Variados 500g",price:23.99,ppu:null}], obs:"Fini é líder em balas de gelatina no Brasil com 70% de market share."},
-  {cat:"bala-goma", name:"Tortuguitas", brand:"Arcor", tags:[], tagLabels:[], qty:24, unit:"11,5g — 456g", price:27.99, ppu:1.17, obs:"Confeitos de chocolate em formato de tartaruga. Clássico argentino."},
-  {cat:"bala-goma", name:"Bala 7Belo (caixa)", brand:"7Belo", tags:["g"], tagLabels:["100 un."], qty:100, unit:"500g", price:10.49, ppu:0.10},
-  {cat:"bala-goma", name:"Bala Buffer Toffees", brand:"Buffer", tags:[], tagLabels:[], qty:70, unit:"400g", price:16.49, ppu:0.24, obs:"Balas tipo toffee (caramelo mastigável)."},
-  {cat:"bala-goma", name:"Bala Sortida", brand:"Dori", tags:[], tagLabels:[], qty:120, unit:"600g", price:10.39, ppu:0.09, obs:"Ótimo custo/un: R$0,09/un."},
-  {cat:"bala-goma", name:"Bala Sortida", brand:"Peccin", tags:["g"], tagLabels:["80 un."], qty:80, unit:"400g", price:5.99, ppu:0.07, obs:"Bala mais barata do catálogo: R$0,07/un."},
-  {cat:"bala-goma", name:"Bala Sortida", brand:"Erlan", tags:[], tagLabels:[], qty:100, unit:"500g", price:6.99, ppu:0.07},
-  {cat:"bala-goma", name:"Bala Joice", brand:"Joice", tags:[], tagLabels:[], qty:75, unit:"500g", price:9.69, ppu:0.13},
-  {cat:"bala-goma", name:"Bala Juquinha", brand:"Juquinha", tags:[], tagLabels:[], qty:100, unit:"500g", price:10.79, ppu:0.11},
-  {cat:"bala-goma", name:"Bala Paçoquita", brand:"Santa Helena", tags:[], tagLabels:[], qty:95, unit:"500g", price:12.49, ppu:0.13, obs:"Bala com sabor de paçoca da Santa Helena."},
-  {cat:"bala-goma", name:"Bala Sortida", brand:"Florestal", tags:[], tagLabels:[], qty:100, unit:"500g", price:7.29, ppu:0.07},
-  {cat:"bala-goma", name:"Bala Pintaton", brand:"Pintaton", tags:["p"], tagLabels:["350 un."], qty:350, unit:"2 kg", price:26.99, ppu:0.08, obs:"Maior caixa do catálogo: 350 unidades / 2 kg. R$0,08/un."},
-  {cat:"bala-goma", name:"Bala Piteco", brand:"Piteco", tags:["p"], tagLabels:["500 un."], qty:500, unit:"un.", price:22.99, ppu:0.05, obs:"Mais barata por unidade do catálogo inteiro: R$0,05/un."},
-
-  
-  {cat:"marshmallow", name:"Marshmallow", brand:"Florestal", tags:[], tagLabels:[], qty:35, unit:"220g", price:6.29, ppu:0.18, obs:"O mais barato em preço absoluto (R$6,29)."},
-  {cat:"marshmallow", name:"Marshmallow", brand:"Docile", tags:[], tagLabels:[], qty:35, unit:"220g", price:7.49, ppu:0.21, obs:"Marca de Lajeado, RS. Presença em 40+ países."},
-  {cat:"marshmallow", name:"Marshmallow", brand:"Fini", tags:["b"], tagLabels:["Espanha"], qty:28, unit:"250g", price:7.49, ppu:0.27, obs:"Marshmallow Fini: linha especial com a qualidade da marca espanhola."},
-
-  
-  {cat:"pirulito", name:"Pirulito Fruit Pop", brand:"Fruit Pop", tags:["g"], tagLabels:["Mais Barato"], qty:50, unit:"300g", price:5.29, ppu:0.11, obs:"Mais barato por unidade (R$0,11) e preço absoluto (R$5,29) dos pirulitos."},
-  {cat:"pirulito", name:"Pirulito Fun Pito", brand:"Fun Pito", tags:[], tagLabels:[], qty:50, unit:"500g", price:9.29, ppu:0.19},
-  {cat:"pirulito", name:"Pirulito 7Belo", brand:"7Belo", tags:[], tagLabels:[], qty:50, unit:"500g", price:10.49, ppu:0.21},
-  {cat:"pirulito", name:"Pirulito BigMax", brand:"BigMax", tags:[], tagLabels:[], qty:24, unit:"600g", price:10.99, ppu:0.46, obs:"Maior peso por unidade (25g): tamanho jumbo."},
-  {cat:"pirulito", name:"Pirulito Cherry Pop", brand:"Cherry Pop", tags:[], tagLabels:[], qty:50, unit:"700g", price:17.49, ppu:0.35},
-  {cat:"pirulito", name:"Pirulito Bling", brand:"Peccin", tags:[], tagLabels:[], qty:24, unit:"672g", price:12.99, ppu:0.54, obs:"Pirulito Bling da Peccin — maior formato e preço/un mais alto da categoria (exceto BigMax)."},
-
-  
-  {cat:"chocolate", name:"M&M's", brand:"Mars", tags:["b","a"], tagLabels:["EUA","Importado"], variants:[{desc:"132g (individual)",price:10.99,ppu:null},{desc:"18 un. × 40g (720g caixa)",price:62.99,ppu:3.50}], obs:"Confeitos de chocolate com casca colorida. Caixa com 18 pacotes ideal para revenda."},
-  {cat:"chocolate", name:"KitKat", brand:"Nestlé", tags:["b","a"], tagLabels:["Reino Unido","Importado"], qty:24, unit:"41,5g — 1 kg", price:87.39, ppu:3.64, obs:"O produto mais caro do catálogo: R$87,39. Wafer clássico desde 1935."},
-  {cat:"chocolate", name:"Snickers", brand:"Mars", tags:["b","a"], tagLabels:["EUA","Amendoim"], qty:20, unit:"42g — 840g", price:62.99, ppu:3.15, obs:"Barra de amendoim, caramelo, nougat e chocolate. 480 kcal por barra (42g)."},
-];*/
-
-
-
-// 1. Configuração do Firebase
-const firebaseConfig = {
-    databaseURL: "https://catalogobase-96f50-default-rtdb.firebaseio.com/"
-  };
-  
-  if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-  }
-  const db = firebase.database();
-
-// 2. Variável global que agora será preenchida pela nuvem
-let products = [];
-
-// 3. Função para carregar os dados automaticamente
-function loadFromFirebase() {
-  // O '.on' fica "escutando". Se você mudar no banco, o site atualiza sozinho na hora!
-  db.ref('products').on('value', (snapshot) => {
-    const data = snapshot.val();
-    if (data) {
-      // Se houver dados no Firebase, usamos eles
-      products = data;
-    } else {
-      // Se o banco estiver vazio (primeira vez), products continua vazio
-      products = [];
-    }
-    render(); // Chama o seu renderizador original para desenhar os produtos na tela
-  });
-}
-
-// 4. Atualize sua função saveProduct para enviar os dados para a nuvem
-function saveProduct() {
-  const index = document.getElementById('editIndex').value;
-  
-  // Pega os valores das tags
-  const tagsInput = document.getElementById('formTags').value.trim();
-  const newLabels = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
-  
-  // Objeto nutricional
-  const kcal = document.getElementById('formNutriKcal').value;
-  let nutriObj = null;
-  if (kcal) {
-    nutriObj = {
-      kcal: parseInt(kcal),
-      prot: document.getElementById('formNutriProt').value || "-",
-      carb: document.getElementById('formNutriCarb').value || "-",
-      gord: document.getElementById('formNutriGord').value || "-"
-    };
-  }
-
-  const newProd = {
-    name: document.getElementById('formName').value,
-    brand: document.getElementById('formBrand').value,
-    cat: document.getElementById('formCat').value,
-    price: parseFloat(document.getElementById('formPrice').value) || 0,
-    qty: parseInt(document.getElementById('formQty').value) || null,
-    ppu: parseFloat(document.getElementById('formPpu').value) || null,
-    kgPrice: parseFloat(document.getElementById('formKgPrice').value) || null,
-    unit: document.getElementById('formUnit').value,
-    tagLabels: newLabels,
-    tags: index > -1 && products[index].tags ? products[index].tags : ['b', 'g'], 
-    nutri: nutriObj,
-    obs: document.getElementById('formObs').value
-  };
-
-  if (index > -1) {
-    products[index] = { ...products[index], ...newProd };
-  } else {
-    products.unshift(newProd);
-  }
-
-  // A MÁGICA ACONTECE AQUI:
-  // Salva o array inteiro no Firebase. O site no GitHub lerá daqui!
-  db.ref('products').set(products).then(() => {
-    closeModal();
-    console.log("Sincronizado com a nuvem!");
-  }).catch(error => {
-    alert("Erro ao salvar: " + error.message);
-  });
-}
-
-// Inicia o processo
-loadFromFirebase();
-
+// ═══════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════
+let products = {};   // { firebaseKey: productObj }
 let activeTab = "all";
 
-function initTabs(){
-  const el = document.getElementById("tabs");
-  el.innerHTML = categories.map(c => `<div class="tab${c.id===activeTab?" active":""}" onclick="setTab('${c.id}')">${c.icon} ${c.label}</div>`).join("");
-}
-
-function setTab(id){
-  activeTab = id;
-  document.getElementById("tabs").querySelectorAll(".tab").forEach((t,i)=>{
-    t.classList.toggle("active", categories[i].id===id);
+// ═══════════════════════════════════════════════
+//  FIREBASE LISTENER
+// ═══════════════════════════════════════════════
+function initFirebase() {
+  setStatus("connecting");
+  db.ref("products").on("value", snap => {
+    const data = snap.val();
+    if (data && typeof data === "object") {
+      products = data;
+      setStatus("online");
+      document.getElementById("seed-wrap").style.display = "none";
+    } else {
+      products = {};
+      setStatus("online");
+      // Show seed option inside the modal when DB is empty
+      document.getElementById("seed-wrap").style.display = "block";
+    }
+    render();
+    updateStats();
+  }, err => {
+    setStatus("offline");
+    toast("Erro ao conectar ao Firebase: " + err.message, "err");
   });
-  document.getElementById("brands-section").classList.toggle("visible", id==="marcas");
-  render();
 }
 
-function render(){
+function setStatus(s) {
+  const dot = document.getElementById("status-dot");
+  const lbl = document.getElementById("stat-status");
+  if (s === "online")       { dot.className = "status-dot online"; lbl.textContent = "Online"; }
+  else if (s === "offline") { dot.className = "status-dot offline"; lbl.textContent = "Offline"; }
+  else                      { dot.className = "status-dot"; lbl.textContent = "..."; }
+}
+
+// ═══════════════════════════════════════════════
+//  SEED
+// ═══════════════════════════════════════════════
+async function seedData() {
+  if (!confirm(`Popular o banco com ${SEED.length} produtos do catálogo base?\n\nIsso irá substituir quaisquer dados existentes.`)) return;
+  toast("Enviando dados...", "ok");
+  // Build object keyed by push ID
+  const updates = {};
+  SEED.forEach(p => {
+    const key = db.ref("products").push().key;
+    updates[key] = p;
+  });
+  try {
+    await db.ref("products").set(updates);
+    toast(`✓ ${SEED.length} produtos enviados ao Firebase!`, "ok");
+    document.getElementById("seed-wrap").style.display = "none";
+  } catch(e) {
+    toast("Erro: " + e.message, "err");
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════════════
+function getPrice(p) { return p.price || 0; }
+
+function updateStats() {
+  const arr = Object.values(products);
+  document.getElementById("stat-total").textContent = arr.length;
+}
+
+function render() {
   const q = document.getElementById("search").value.toLowerCase().trim();
   const sort = document.getElementById("sort").value;
   const catalog = document.getElementById("catalog");
 
-  if(activeTab==="marcas"){catalog.innerHTML="";return;}
+  if (activeTab === "marcas") { catalog.innerHTML = ""; return; }
 
-  const catsToShow = activeTab==="all" ? categories.filter(c=>c.id!=="all"&&c.id!=="marcas") : categories.filter(c=>c.id===activeTab);
-  let html = "";
-  let totalShown = 0;
+  const arr = Object.entries(products).map(([k, v]) => ({ ...v, _key: k }));
 
-  for(const cat of catsToShow){
-    let items = products.filter(p => p.cat === cat.id);
-    if(q) items = items.filter(p => [p.name,p.brand,...(p.obs||"")].join(" ").toLowerCase().includes(q));
+  const catsToShow = activeTab === "all"
+    ? categories.filter(c => c.id !== "all" && c.id !== "marcas")
+    : categories.filter(c => c.id === activeTab);
 
-    if(items.length===0) continue;
-    totalShown += items.length;
+  let html = "", shown = 0;
 
-    if(sort==="price-asc") items.sort((a,b)=>getPrice(a)-getPrice(b));
-    else if(sort==="price-desc") items.sort((a,b)=>getPrice(b)-getPrice(a));
-    else if(sort==="ppu-asc") items.sort((a,b)=>(a.ppu||999)-(b.ppu||999));
-    else if(sort==="name-asc") items.sort((a,b)=>a.name.localeCompare(b.name));
+  for (const cat of catsToShow) {
+    let items = arr.filter(p => p.cat === cat.id);
+    if (q) items = items.filter(p =>
+      [p.name, p.brand, p.obs || ""].join(" ").toLowerCase().includes(q)
+    );
+    if (!items.length) continue;
+    shown += items.length;
 
-    html += `<div class="cat-section"><div class="cat-header"><span class="cat-icon">${cat.icon}</span><span class="cat-title">${cat.label}</span><span class="cat-count">${items.length} produto${items.length!==1?"s":""}</span></div><div class="products-grid">${items.map(cardHtml).join("")}</div></div>`;
+    if (sort === "price-asc")  items.sort((a,b) => getPrice(a)-getPrice(b));
+    if (sort === "price-desc") items.sort((a,b) => getPrice(b)-getPrice(a));
+    if (sort === "ppu-asc")    items.sort((a,b) => (a.ppu||999)-(b.ppu||999));
+    if (sort === "name-asc")   items.sort((a,b) => a.name.localeCompare(b.name));
+
+    html += `<div class="cat-section">
+      <div class="cat-header">
+        <span class="cat-icon">${cat.icon}</span>
+        <span class="cat-title">${cat.label}</span>
+        <span class="cat-count">${items.length}</span>
+      </div>
+      <div class="products-grid">${items.map(cardHtml).join("")}</div>
+    </div>`;
   }
 
-  if(!totalShown) html = `<div class="no-results">Nenhum produto encontrado para "<strong>${q}</strong>"</div>`;
+  if (!shown) html = `<div class="no-results">Nenhum produto encontrado${q ? ` para "<strong>${q}</strong>"` : ""}.</div>`;
   catalog.innerHTML = html;
-  document.getElementById("total-products").textContent = totalShown;
+  document.getElementById("stat-total").textContent = shown;
 }
-
-function getPrice(p){ return p.price || (p.variants?.[0]?.price) || 0; }
 
 function cardHtml(p) {
-  // Localiza o índice real do produto no array principal para permitir a edição
-  const index = products.indexOf(p); 
-  const hasTags = p.tags && p.tags.length > 0;
-  const tagColors = {r:"tag-r",g:"tag-g",b:"tag-b",p:"tag-p",a:"tag-a"};
-  const tagsHtml = hasTags ? `<div class="pcard-tags">${p.tags.map((t,i)=>`<span class="tag ${tagColors[t]}">${p.tagLabels[i]}</span>`).join("")}</div>` : "";
+  const tc = {r:"tag-r",g:"tag-g",b:"tag-b",p:"tag-p",a:"tag-a"};
+  const tags = p.tags || [];
+  const labels = p.tagLabels || [];
+  const tagsHtml = tags.length
+    ? `<div class="pcard-tags">${tags.map((t,i)=>`<span class="tag ${tc[t]||"tag-b"}">${labels[i]||t}</span>`).join("")}</div>`
+    : "";
 
-  // Botão de edição que será inserido no topo do card
-  const editBtnHtml = `<span class="edit-btn" onclick="openModal(${index})" style="margin-left:8px; cursor:pointer; color:var(--gold); font-size:10px; text-decoration:underline;">editar</span>`;
+  const infoHtml = p.qty
+    ? `<div class="pcard-info">
+        <div class="pinfo"><div class="pinfo-l">Qtd. Caixa</div><div class="pinfo-v">${p.qty} un.</div></div>
+        ${p.ppu ? `<div class="pinfo"><div class="pinfo-l">Preço/un.</div><div class="pinfo-v">R$${(+p.ppu).toFixed(2).replace(".",",")}</div></div>` : ""}
+        ${p.kgPrice ? `<div class="pinfo"><div class="pinfo-l">Preço/kg</div><div class="pinfo-v">R$${(+p.kgPrice).toFixed(2).replace(".",",")}</div></div>` : ""}
+      </div>`
+    : "";
 
-  if(p.variants){
-    const variantsHtml = p.variants.map(v=>`<div class="variant-row"><span class="variant-desc">${v.desc}</span><span class="variant-price">R$${v.price.toFixed(2).replace(".",",")}</span>${v.ppu?`<span class="variant-ppu">R$${v.ppu.toFixed(2).replace(".",",")} /un</span>`:""}</div>`).join("");
-    return `<div class="pcard">
-              <div class="pcard-top">
-                <span class="pcard-name">${p.name} ${editBtnHtml}</span>
-                <span class="pcard-brand">${p.brand}</span>
-              </div>
-              ${tagsHtml}
-              <div class="pcard-variants">${variantsHtml}</div>
-              ${p.obs?`<div style="font-size:11px;color:var(--text3);margin-top:.5rem;line-height:1.4">${p.obs}</div>`:""}
-            </div>`;
-  }
-
-  const infoHtml = p.qty ? `<div class="pcard-info"><div class="pinfo"><div class="pinfo-l">Qtd. Caixa</div><div class="pinfo-v">${p.qty} un.</div></div><div class="pinfo"><div class="pinfo-l">Preço/un.</div><div class="pinfo-v">R$${p.ppu.toFixed(2).replace(".",",")}</div></div>${p.kgPrice?`<div class="pinfo"><div class="pinfo-l">Preço/kg</div><div class="pinfo-v">R$${p.kgPrice.toFixed(2).replace(".",",")}</div></div>`:""}</div>` : "";
-
-  const nutriHtml = p.nutri ? `<div class="nutri-bar"><span class="nutri-pill">⚡ <span>${p.nutri.kcal} kcal</span>/un</span><span class="nutri-pill">Prot <span>${p.nutri.prot}</span></span><span class="nutri-pill">Carb <span>${p.nutri.carb}</span></span><span class="nutri-pill">Gord <span>${p.nutri.gord}</span></span></div>` : "";
+  const nutriHtml = p.nutri
+    ? `<div class="nutri-bar">
+        <span class="nutri-pill">⚡ <span>${p.nutri.kcal} kcal</span></span>
+        <span class="nutri-pill">Prot <span>${p.nutri.prot}</span></span>
+        <span class="nutri-pill">Carb <span>${p.nutri.carb}</span></span>
+        <span class="nutri-pill">Gord <span>${p.nutri.gord}</span></span>
+      </div>`
+    : "";
 
   return `<div class="pcard">
-            <div class="pcard-top">
-              <span class="pcard-name">${p.name} ${editBtnHtml}</span>
-              <span class="pcard-brand">${p.brand}</span>
-            </div>
-            ${tagsHtml}
-            ${infoHtml}
-            <div class="pcard-price-row">
-              <span class="pcard-price">R$${p.price.toFixed(2).replace(".",",")}</span>
-              <span class="pcard-ppu">${p.unit||""}</span>
-            </div>
-            ${nutriHtml}
-            ${p.obs?`<div style="font-size:11px;color:var(--text3);margin-top:.5rem;line-height:1.4">${p.obs}</div>`:""}
-          </div>`;
+    <button class="edit-fab" onclick="openModal('${p._key}')" title="Editar">✎</button>
+    <div class="pcard-top">
+      <span class="pcard-name">${escHtml(p.name)}</span>
+      <span class="pcard-brand">${escHtml(p.brand)}</span>
+    </div>
+    ${tagsHtml}${infoHtml}
+    <div class="pcard-price-row">
+      <span class="pcard-price">R$${(+p.price||0).toFixed(2).replace(".",",")}</span>
+      <span class="pcard-ppu">${escHtml(p.unit||"")}</span>
+    </div>
+    ${nutriHtml}
+    ${p.obs ? `<div class="pcard-obs">${escHtml(p.obs)}</div>` : ""}
+  </div>`;
 }
 
-function initBrands(){
-  const el = document.getElementById("brands-grid");
-  el.innerHTML = Object.entries(brands).map(([name,b])=>`<div class="brand-card"><div class="brand-name">${name}</div><div class="brand-origin">&#127759; ${b.origin}${b.founded&&b.founded!=="-"?" · Fund. "+b.founded:""}</div><div class="brand-desc">${b.desc}</div></div>`).join("");
+function escHtml(s) {
+  if (!s) return "";
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 }
 
-initTabs();
-initBrands();
-render();
+// ═══════════════════════════════════════════════
+//  TABS / BRANDS
+// ═══════════════════════════════════════════════
+function initTabs() {
+  document.getElementById("tabs").innerHTML = categories
+    .map(c => `<div class="tab${c.id===activeTab?" active":""}" onclick="setTab('${c.id}')">${c.icon} ${c.label}</div>`)
+    .join("");
+}
 
-// Preenche o select de categorias do formulário
-document.getElementById('formCat').innerHTML = categories
-  .filter(c => c.id !== 'all' && c.id !== 'marcas')
-  .map(c => `<option value="${c.id}">${c.label}</option>`).join('');
+function setTab(id) {
+  activeTab = id;
+  document.querySelectorAll(".tab").forEach((t,i) => t.classList.toggle("active", categories[i].id===id));
+  document.getElementById("brands-section").classList.toggle("visible", id==="marcas");
+  render();
+}
 
-function openModal(index = -1) {
-  const modal = document.getElementById('productModal');
-  const title = document.getElementById('modalTitle');
-  
-  // Define se estamos editando ou criando um novo
-  document.getElementById('editIndex').value = index;
-  
-  // Limpa todos os campos antes de começar
-  document.querySelectorAll('#productModal input, #productModal textarea').forEach(el => el.value = '');
+function initBrands() {
+  document.getElementById("brands-grid").innerHTML = Object.entries(brands)
+    .map(([name,b]) => `<div class="brand-card">
+      <div class="brand-name">${name}</div>
+      <div class="brand-origin">🌐 ${b.origin}${b.founded && b.founded!=="-" ? " · Fund. "+b.founded : ""}</div>
+      <div class="brand-desc">${b.desc}</div>
+    </div>`).join("");
+}
 
-  if (index > -1) {
-    title.innerText = "Editar Produto";
-    const p = products[index];
-    
-    // Preenche os campos com os dados existentes[cite: 1]
-    document.getElementById('formName').value = p.name || '';
-    document.getElementById('formBrand').value = p.brand || '';
-    document.getElementById('formCat').value = p.cat || '';
-    document.getElementById('formPrice').value = p.price || '';
-    document.getElementById('formQty').value = p.qty || '';
-    document.getElementById('formPpu').value = p.ppu || '';
-    document.getElementById('formKgPrice').value = p.kgPrice || '';
-    document.getElementById('formUnit').value = p.unit || '';
-    document.getElementById('formTags').value = p.tagLabels ? p.tagLabels.join(', ') : '';
-    document.getElementById('formObs').value = p.obs || '';
+function initCatSelect() {
+  document.getElementById("f-cat").innerHTML = categories
+    .filter(c => c.id !== "all" && c.id !== "marcas")
+    .map(c => `<option value="${c.id}">${c.icon} ${c.label}</option>`)
+    .join("");
+}
 
+// ═══════════════════════════════════════════════
+//  MODAL
+// ═══════════════════════════════════════════════
+let editKey = null;
+
+function openModal(key) {
+  editKey = key || null;
+  const isEdit = !!editKey;
+
+  document.getElementById("modal-title").textContent = isEdit ? "Editar Produto" : "Adicionar Produto";
+  document.getElementById("btn-del").style.display = isEdit ? "inline-flex" : "none";
+  clearForm();
+
+  if (isEdit) {
+    const p = products[editKey];
+    if (!p) return;
+    document.getElementById("f-name").value = p.name || "";
+    document.getElementById("f-brand").value = p.brand || "";
+    document.getElementById("f-cat").value = p.cat || "";
+    document.getElementById("f-price").value = p.price || "";
+    document.getElementById("f-qty").value = p.qty || "";
+    document.getElementById("f-ppu").value = p.ppu || "";
+    document.getElementById("f-kgprice").value = p.kgPrice || "";
+    document.getElementById("f-unit").value = p.unit || "";
+    document.getElementById("f-tags").value = (p.tagLabels || []).join(", ");
+    document.getElementById("f-obs").value = p.obs || "";
     if (p.nutri) {
-      document.getElementById('formNutriKcal').value = p.nutri.kcal || '';
-      document.getElementById('formNutriProt').value = p.nutri.prot || '';
-      document.getElementById('formNutriCarb').value = p.nutri.carb || '';
-      document.getElementById('formNutriGord').value = p.nutri.gord || '';
+      document.getElementById("f-kcal").value = p.nutri.kcal || "";
+      document.getElementById("f-prot").value = p.nutri.prot || "";
+      document.getElementById("f-carb").value = p.nutri.carb || "";
+      document.getElementById("f-gord").value = p.nutri.gord || "";
     }
   } else {
-    title.innerText = "Novo Produto";
-    // Garante que o select de categoria volte ao primeiro item
-    if(document.getElementById('formCat').options.length > 0) {
-        document.getElementById('formCat').selectedIndex = 0;
-    }
+    if (activeTab !== "all" && activeTab !== "marcas")
+      document.getElementById("f-cat").value = activeTab;
   }
-  modal.style.display = 'block';
+
+  document.getElementById("overlay").classList.remove("hidden");
+  document.body.style.overflow = "hidden";
 }
 
 function closeModal() {
-  document.getElementById('productModal').style.display = 'none';
+  document.getElementById("overlay").classList.add("hidden");
+  document.body.style.overflow = "";
 }
 
-function saveProduct() {
-  const indexStr = document.getElementById('editIndex').value;
-  const index = parseInt(indexStr);
-  
-  // Captura dos valores do formulário[cite: 1]
-  const tagsInput = document.getElementById('formTags').value.trim();
-  const newLabels = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
-  
-  const kcal = document.getElementById('formNutriKcal').value;
-  let nutriObj = null;
-  if (kcal) {
-    nutriObj = {
-      kcal: parseInt(kcal),
-      prot: document.getElementById('formNutriProt').value || "-",
-      carb: document.getElementById('formNutriCarb').value || "-",
-      gord: document.getElementById('formNutriGord').value || "-"
-    };
-  }
-
-  const newProd = {
-    name: document.getElementById('formName').value,
-    brand: document.getElementById('formBrand').value,
-    cat: document.getElementById('formCat').value,
-    price: parseFloat(document.getElementById('formPrice').value) || 0,
-    qty: parseInt(document.getElementById('formQty').value) || null,
-    ppu: parseFloat(document.getElementById('formPpu').value) || null,
-    kgPrice: parseFloat(document.getElementById('formKgPrice').value) || null,
-    unit: document.getElementById('formUnit').value,
-    tagLabels: newLabels,
-    tags: (index > -1 && products[index] && products[index].tags) ? products[index].tags : ['b', 'g'],
-    nutri: nutriObj,
-    obs: document.getElementById('formObs').value
-  };
-
-  // Lógica de salvamento local no array[cite: 1]
-  if (index > -1) {
-    products[index] = { ...products[index], ...newProd };
-  } else {
-    // Se products for null ou undefined, inicializa como array vazio
-    if (!products) products = [];
-    products.unshift(newProd);
-  }
-
-  // Envia para o Firebase[cite: 1]
-  db.ref('products').set(products)
-    .then(() => {
-      console.log("Dados enviados ao Firebase!");
-      closeModal();
-      // Forçamos o render logo após salvar para garantir a visualização imediata
-      render(); 
-    })
-    .catch(error => {
-      console.error("Erro detalhado:", error);
-      alert("Erro ao salvar! Verifique as regras do Firebase.");
-    });
+function overlayClick(e) {
+  if (e.target === document.getElementById("overlay")) closeModal();
 }
-  const index = document.getElementById('editIndex').value;
-  
-  const kcal = document.getElementById('formNutriKcal').value;
-  const prot = document.getElementById('formNutriProt').value;
-  const carb = document.getElementById('formNutriCarb').value;
-  const gord = document.getElementById('formNutriGord').value;
-  
-  let nutriObj = null;
-  if (kcal || prot || carb || gord) {
-    nutriObj = {
-      kcal: kcal ? parseInt(kcal) : 0,
-      prot: prot || "-",
-      carb: carb || "-",
-      gord: gord || "-"
-    };
-  }
 
-  // Processamento inteligente das Tags
-  const tagsInput = document.getElementById('formTags').value.trim();
-  const newLabels = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
-  const palette = ['b', 'g', 'a', 'p', 'r']; // Azul, Verde, Dourado, Roxo, Vermelho
-  let newTagsColors = [];
-  
-  if (index > -1 && products[index].tags) {
-    // Preserva a cor original das tags editadas e adiciona novas cores se você colocar tags a mais
-    newLabels.forEach((label, i) => {
-      if (products[index].tags[i]) {
-        newTagsColors.push(products[index].tags[i]);
-      } else {
-        newTagsColors.push(palette[i % palette.length]);
-      }
-    });
+function clearForm() {
+  ["f-name","f-brand","f-price","f-qty","f-ppu","f-kgprice","f-unit","f-tags","f-obs","f-kcal","f-prot","f-carb","f-gord"]
+    .forEach(id => { document.getElementById(id).value = ""; });
+  document.getElementById("ppu-calc").textContent = "";
+}
+
+function calcPpu() {
+  const price = parseFloat(document.getElementById("f-price").value);
+  const qty = parseInt(document.getElementById("f-qty").value);
+  const el = document.getElementById("ppu-calc");
+  if (price > 0 && qty > 0) {
+    const v = price / qty;
+    document.getElementById("f-ppu").value = v.toFixed(4);
+    el.textContent = `≈ R$${v.toFixed(2).replace(".",",")} / un`;
   } else {
-    // Para produtos novos, apenas distribui as cores da paleta sequencialmente
-    newLabels.forEach((label, i) => newTagsColors.push(palette[i % palette.length]));
+    el.textContent = "";
   }
+}
 
-  const newProd = {
-    name: document.getElementById('formName').value,
-    brand: document.getElementById('formBrand').value,
-    cat: document.getElementById('formCat').value,
-    price: parseFloat(document.getElementById('formPrice').value) || 0,
-    qty: parseInt(document.getElementById('formQty').value) || null,
-    ppu: parseFloat(document.getElementById('formPpu').value) || null,
-    kgPrice: parseFloat(document.getElementById('formKgPrice').value) || null,
-    unit: document.getElementById('formUnit').value,
-    tagLabels: newLabels,
-    tags: newTagsColors,
-    nutri: nutriObj,
-    obs: document.getElementById('formObs').value
-  };
+async function saveProduct() {
+  const name  = document.getElementById("f-name").value.trim();
+  const brand = document.getElementById("f-brand").value.trim();
+  const cat   = document.getElementById("f-cat").value;
+  const price = parseFloat(document.getElementById("f-price").value);
 
-  if (index > -1) {
-    products[index] = { ...products[index], ...newProd };
-  } else {
-    products.unshift(newProd);
+  if (!name)           { toast("Informe o nome do produto.", "err"); return; }
+  if (!brand)          { toast("Informe a marca.", "err"); return; }
+  if (!cat)            { toast("Selecione a categoria.", "err"); return; }
+  if (!price || price <= 0) { toast("Informe um preço válido.", "err"); return; }
+
+  const qty     = parseInt(document.getElementById("f-qty").value) || null;
+  const ppuRaw  = parseFloat(document.getElementById("f-ppu").value);
+  const ppu     = ppuRaw > 0 ? ppuRaw : (qty ? parseFloat((price/qty).toFixed(4)) : null);
+  const kgPrice = parseFloat(document.getElementById("f-kgprice").value) || null;
+  const unit    = document.getElementById("f-unit").value.trim() || null;
+  const obs     = document.getElementById("f-obs").value.trim() || null;
+
+  // Tags
+  const tagsRaw = document.getElementById("f-tags").value.trim();
+  const tagLabels = tagsRaw ? tagsRaw.split(",").map(t=>t.trim()).filter(Boolean) : [];
+  const palette = ["b","g","a","p","r"];
+  const tags = tagLabels.map((_,i) => {
+    if (editKey && products[editKey]?.tags?.[i]) return products[editKey].tags[i];
+    return palette[i % palette.length];
+  });
+
+  // Nutri
+  const kcalRaw = document.getElementById("f-kcal").value;
+  const nutri = kcalRaw
+    ? { kcal: parseInt(kcalRaw), prot: document.getElementById("f-prot").value||"-", carb: document.getElementById("f-carb").value||"-", gord: document.getElementById("f-gord").value||"-" }
+    : null;
+
+  const prod = { cat, name, brand, price, tags, tagLabels };
+  if (qty)     prod.qty = qty;
+  if (ppu)     prod.ppu = ppu;
+  if (kgPrice) prod.kgPrice = kgPrice;
+  if (unit)    prod.unit = unit;
+  if (obs)     prod.obs = obs;
+  if (nutri)   prod.nutri = nutri;
+
+  try {
+    if (editKey) {
+      await db.ref("products/" + editKey).set(prod);
+      toast("✓ Produto atualizado!", "ok");
+    } else {
+      await db.ref("products").push(prod);
+      toast("✓ Produto adicionado!", "ok");
+    }
+    closeModal();
+  } catch(e) {
+    toast("Erro ao salvar: " + e.message, "err");
   }
+}
 
-  closeModal();
-  render();
+async function deleteProduct() {
+  if (!editKey) return;
+  const name = products[editKey]?.name || "este produto";
+  if (!confirm(`Excluir "${name}" do catálogo?`)) return;
+  try {
+    await db.ref("products/" + editKey).remove();
+    toast("✓ Produto excluído.", "ok");
+    closeModal();
+  } catch(e) {
+    toast("Erro: " + e.message, "err");
+  }
+}
 
+// ═══════════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════════
+let toastTimer;
+function toast(msg, type="ok") {
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.className = `toast ${type} show`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("show"), 3000);
+}
 
+// ═══════════════════════════════════════════════
+//  HEADER HEIGHT (sticky offset)
+// ═══════════════════════════════════════════════
+function measureHeader() {
+  const h = document.getElementById("header-el").offsetHeight;
+  document.documentElement.style.setProperty("--header-h", h+"px");
+}
+
+// ═══════════════════════════════════════════════
+//  BOOT
+// ═══════════════════════════════════════════════
+window.addEventListener("DOMContentLoaded", () => {
+  initTabs();
+  initBrands();
+  initCatSelect();
+  measureHeader();
+  window.addEventListener("resize", measureHeader);
+  initFirebase();
+});
 </script>
 </body>
 </html>

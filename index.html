@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <title>Rei dos Doces — Catálogo Completo</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -293,8 +295,9 @@ const categories = [
   {id:"marcas", label:"Sobre as Marcas", icon:"★"},
 ];
 
-const products = [
-  // PAÇOCAS
+
+/*const products = [
+  
   {cat:"pacoca", name:"Paçoquita Rolha", brand:"Santa Helena", tags:["b","g"], tagLabels:["Sem Glúten","Líder Nacional"], qty:100, unit:"Rolha 18g", price:32.99, ppu:0.33, kgPrice:18.33, nutri:{kcal:103,prot:"3,5g",carb:"9,7g",gord:"5,6g"}, obs:"Ingredientes: Amendoim torrado, açúcar e sal. Não contém glúten."},
   {cat:"pacoca", name:"Paçoquita Quadrada", brand:"Santa Helena", tags:["b","g"], tagLabels:["Sem Glúten","Líder Nacional"], qty:50, unit:"Quad 20g", price:26.99, ppu:0.54, kgPrice:26.99, nutri:{kcal:103,prot:"3,5g",carb:"9,7g",gord:"5,6g"}, obs:"Formato quadrado. Mesma receita original."},
   {cat:"pacoca", name:"Paçoquita Rolhão", brand:"Santa Helena", tags:["b","g","a"], tagLabels:["Sem Glúten","Premium","Grande"], qty:20, unit:"Rolhão grande", price:30.99, ppu:1.55, kgPrice:null, obs:"Formato jumbo — porção maior. Ideal para consumo adulto."},
@@ -305,7 +308,7 @@ const products = [
   {cat:"pacoca", name:"Paçoca Rolha", brand:"Daal", tags:[], tagLabels:[], variants:[{desc:"100 unidades",price:23.49,ppu:0.23},{desc:"50 unidades",price:16.99,ppu:0.34}]},
   {cat:"pacoca", name:"Paçoca Rolha", brand:"JW", tags:[], tagLabels:[], qty:20, unit:"Rolha", price:17.99, ppu:0.90, kgPrice:null},
 
-  // DOCES TÍPICOS
+  
   {cat:"doces-tipicos", name:"Doce de Leite (sortido)", brand:"Rapa Nui", tags:["p"], tagLabels:["Argentina"], qty:20, unit:"un.", price:17.99, ppu:0.90, obs:"Linha clássica: geleia de mocotó e variados. Qualidade e tradição argentina."},
   {cat:"doces-tipicos", name:"Torrone", brand:"Rapa Nui", tags:["p"], tagLabels:["Argentina"], qty:20, unit:"un.", price:17.99, ppu:0.90, obs:"Doce clássico italiano-mediterrâneo à base de mel, açúcar e amendoim/castanhas. A Rapa Nui é marca argentina premium de Bariloche."},
   {cat:"doces-tipicos", name:"Doce de Abóbora Coração", brand:"Rapa Nui", tags:["p"], tagLabels:["Argentina"], qty:20, unit:"un.", price:23.99, ppu:1.20, obs:"Versão premium em formato coração. Preço/un mais alto da linha Rapa Nui."},
@@ -327,7 +330,7 @@ const products = [
   {cat:"doces-tipicos", name:"Chupa Leite", brand:"Biba", tags:[], tagLabels:[], qty:50, unit:"un.", price:23.99, ppu:0.48},
   {cat:"doces-tipicos", name:"Geladinho", brand:"Genérico", tags:[], tagLabels:[], qty:20, unit:"un.", price:8.99, ppu:0.45},
 
-  // AMENDOIM & PÉ DE MOLEQUE
+  
   {cat:"amendoim-pe", name:"Amendoim (caixa)", brand:"Santa Helena", tags:["g"], tagLabels:["Sem Glúten"], qty:60, unit:"un.", price:33.79, ppu:0.56, obs:"Embalagens individuais de amendoim torrado e salgado."},
   {cat:"amendoim-pe", name:"Doce de Amendoim Caseirão", brand:"Santa Helena", tags:["g"], tagLabels:["1,65 kg"], qty:30, unit:"un.", price:29.49, ppu:0.98, kgPrice:17.87, obs:"1,65 kg total. Melhor preço/kg da linha Santa Helena (R$17,87/kg)."},
   {cat:"amendoim-pe", name:"Doce de Amendoim", brand:"Santa Helena", tags:["g"], tagLabels:["1,5 kg"], qty:30, unit:"un.", price:29.79, ppu:0.99, kgPrice:19.86, obs:"1,5 kg total. Versão padrão."},
@@ -336,25 +339,25 @@ const products = [
   {cat:"amendoim-pe", name:"Pé de Moleque", brand:"Molecão do Rio", tags:["g"], tagLabels:["1 kg"], qty:50, unit:"un.", price:15.49, ppu:0.31, kgPrice:15.49, obs:"Melhor custo-benefício em pé de moleque: R$15,49/kg."},
   {cat:"amendoim-pe", name:"Paçoca Caseira", brand:"Moreninha do Rio", tags:["g"], tagLabels:["1,3 kg"], qty:50, unit:"un.", price:20.99, ppu:0.42, kgPrice:16.15},
 
-  // BANANADAS
+  
   {cat:"bananada", name:"Bananada", brand:"Três Amigos", tags:[], tagLabels:[], qty:20, unit:"300g", price:5.69, ppu:0.28, kgPrice:18.97, obs:"Embalagem menor, ideal para consumo individual e experimentação."},
   {cat:"bananada", name:"Bananada", brand:"Ingrid", tags:[], tagLabels:[], qty:50, unit:"3 kg", price:38.49, ppu:0.77, kgPrice:12.83, obs:"Melhor preço/kg das bananadas (R$12,83/kg). Embalagem atacado 3 kg."},
   {cat:"bananada", name:"Bananada", brand:"Mariola", tags:[], tagLabels:[], qty:50, unit:"3 kg", price:42.69, ppu:0.85, kgPrice:14.23},
   {cat:"bananada", name:"Bananada", brand:"Sabor Legal", tags:[], tagLabels:[], qty:50, unit:"800g", price:11.99, ppu:0.24, kgPrice:14.99},
 
-  // BISCOITOS & SALGADINHOS
+  
   {cat:"biscoito-salgado", name:"Biscoito de Polvilho Gostoso", brand:"Gostoso", tags:[], tagLabels:[], qty:20, unit:"un.", price:25.49, ppu:1.27, obs:"Biscoito de polvilho assado. Clássico brasileiro."},
   {cat:"biscoito-salgado", name:"Biscoito Fofura", brand:"Fofura", tags:[], tagLabels:[], qty:10, unit:"un.", price:16.99, ppu:1.70, obs:"Preço/un mais alto dos biscoitos (R$1,70). Embalagem menor."},
   {cat:"biscoito-salgado", name:"Torcida", brand:"Lucky", tags:[], tagLabels:[], variants:[{desc:"35g (unidade)",price:1.19,ppu:null},{desc:"60g (unidade)",price:1.69,ppu:null}], obs:"Salgadinho de milho espiral. Vendido por unidade. Preço atacado variável."},
   {cat:"biscoito-salgado", name:"Salgadinho Bigs", brand:"Bigs", tags:[], tagLabels:[], qty:10, unit:"40g cada", price:9.19, ppu:0.92},
 
-  // PIPOCAS
+  
   {cat:"pipoca", name:"Pipoca Pronta", brand:"Aritana", tags:[], tagLabels:[], qty:50, unit:"10g", price:15.49, ppu:0.31, kgPrice:30.98},
   {cat:"pipoca", name:"Pipoca Pronta", brand:"Frank", tags:[], tagLabels:[], variants:[{desc:"50 un. × 10g",price:12.99,ppu:0.26},{desc:"25 un. × 40g",price:20.79,ppu:0.83},{desc:"13 un. × 60g",price:14.39,ppu:1.11}], obs:"Melhor preço absoluto em pipoca pronta: R$12,99/caixa."},
   {cat:"pipoca", name:"Pipoca Pronta", brand:"Trigomil", tags:[], tagLabels:[], variants:[{desc:"25 un. × 40g",price:19.49,ppu:0.78},{desc:"10 un. × 70g",price:17.69,ppu:1.77}]},
   {cat:"pipoca", name:"Pipoca Pronta", brand:"Kerus", tags:["a"], tagLabels:["Premium"], variants:[{desc:"25 un. × 40g",price:27.99,ppu:1.12},{desc:"10 un. × 80g",price:21.59,ppu:2.16}], obs:"Marca premium — R$27,99 para 25 un., a mais cara da categoria."},
 
-  // CHICLETES & PASTILHAS
+  
   {cat:"chiclete-pastilha", name:"Chiclete Flics", brand:"Arcor", tags:[], tagLabels:[], qty:12, unit:"204g", price:7.99, ppu:0.67},
   {cat:"chiclete-pastilha", name:"Chiclete Big Big", brand:"Arcor", tags:["g"], tagLabels:["Econômico"], qty:90, unit:"315g", price:7.89, ppu:0.09, obs:"Melhor custo/unidade dos chicletes Arcor: R$0,09/un."},
   {cat:"chiclete-pastilha", name:"Chiclete Zumbis", brand:"Arcor", tags:[], tagLabels:[], qty:75, unit:"337g", price:10.49, ppu:0.14},
@@ -376,7 +379,7 @@ const products = [
   {cat:"chiclete-pastilha", name:"Halls (drops)", brand:"Halls", tags:["p"], tagLabels:["Mentol"], qty:21, unit:"un.", price:25.79, ppu:1.23, obs:"Drops com mentol, auxiliar respiratório. Mondelēz."},
   {cat:"chiclete-pastilha", name:"Freegells", brand:"Freegells", tags:[], tagLabels:[], qty:12, unit:"un.", price:8.99, ppu:0.75, obs:"Bala gelatinosa com recheio de gel. O mais barato entre drops/freegells."},
 
-  // BALAS & GOMAS
+  
   {cat:"bala-goma", name:"Bala Skate Mastigável", brand:"Skate", tags:[], tagLabels:[], qty:50, unit:"un.", price:19.49, ppu:0.39},
   {cat:"bala-goma", name:"Bala Sticka Mastigável", brand:"Sticka", tags:[], tagLabels:[], qty:40, unit:"un.", price:12.99, ppu:0.32},
   {cat:"bala-goma", name:"Goma Jujuba", brand:"Gomutcho", tags:[], tagLabels:[], variants:[{desc:"30 un. (display)",price:17.49,ppu:0.58},{desc:"1 kg (granel)",price:15.99,ppu:null}]},
@@ -399,12 +402,12 @@ const products = [
   {cat:"bala-goma", name:"Bala Pintaton", brand:"Pintaton", tags:["p"], tagLabels:["350 un."], qty:350, unit:"2 kg", price:26.99, ppu:0.08, obs:"Maior caixa do catálogo: 350 unidades / 2 kg. R$0,08/un."},
   {cat:"bala-goma", name:"Bala Piteco", brand:"Piteco", tags:["p"], tagLabels:["500 un."], qty:500, unit:"un.", price:22.99, ppu:0.05, obs:"Mais barata por unidade do catálogo inteiro: R$0,05/un."},
 
-  // MARSHMALLOWS
+  
   {cat:"marshmallow", name:"Marshmallow", brand:"Florestal", tags:[], tagLabels:[], qty:35, unit:"220g", price:6.29, ppu:0.18, obs:"O mais barato em preço absoluto (R$6,29)."},
   {cat:"marshmallow", name:"Marshmallow", brand:"Docile", tags:[], tagLabels:[], qty:35, unit:"220g", price:7.49, ppu:0.21, obs:"Marca de Lajeado, RS. Presença em 40+ países."},
   {cat:"marshmallow", name:"Marshmallow", brand:"Fini", tags:["b"], tagLabels:["Espanha"], qty:28, unit:"250g", price:7.49, ppu:0.27, obs:"Marshmallow Fini: linha especial com a qualidade da marca espanhola."},
 
-  // PIRULITOS
+  
   {cat:"pirulito", name:"Pirulito Fruit Pop", brand:"Fruit Pop", tags:["g"], tagLabels:["Mais Barato"], qty:50, unit:"300g", price:5.29, ppu:0.11, obs:"Mais barato por unidade (R$0,11) e preço absoluto (R$5,29) dos pirulitos."},
   {cat:"pirulito", name:"Pirulito Fun Pito", brand:"Fun Pito", tags:[], tagLabels:[], qty:50, unit:"500g", price:9.29, ppu:0.19},
   {cat:"pirulito", name:"Pirulito 7Belo", brand:"7Belo", tags:[], tagLabels:[], qty:50, unit:"500g", price:10.49, ppu:0.21},
@@ -412,11 +415,95 @@ const products = [
   {cat:"pirulito", name:"Pirulito Cherry Pop", brand:"Cherry Pop", tags:[], tagLabels:[], qty:50, unit:"700g", price:17.49, ppu:0.35},
   {cat:"pirulito", name:"Pirulito Bling", brand:"Peccin", tags:[], tagLabels:[], qty:24, unit:"672g", price:12.99, ppu:0.54, obs:"Pirulito Bling da Peccin — maior formato e preço/un mais alto da categoria (exceto BigMax)."},
 
-  // CHOCOLATES
+  
   {cat:"chocolate", name:"M&M's", brand:"Mars", tags:["b","a"], tagLabels:["EUA","Importado"], variants:[{desc:"132g (individual)",price:10.99,ppu:null},{desc:"18 un. × 40g (720g caixa)",price:62.99,ppu:3.50}], obs:"Confeitos de chocolate com casca colorida. Caixa com 18 pacotes ideal para revenda."},
   {cat:"chocolate", name:"KitKat", brand:"Nestlé", tags:["b","a"], tagLabels:["Reino Unido","Importado"], qty:24, unit:"41,5g — 1 kg", price:87.39, ppu:3.64, obs:"O produto mais caro do catálogo: R$87,39. Wafer clássico desde 1935."},
   {cat:"chocolate", name:"Snickers", brand:"Mars", tags:["b","a"], tagLabels:["EUA","Amendoim"], qty:20, unit:"42g — 840g", price:62.99, ppu:3.15, obs:"Barra de amendoim, caramelo, nougat e chocolate. 480 kcal por barra (42g)."},
-];
+];*/
+
+
+
+// 1. Configuração do Firebase
+const firebaseConfig = {
+  databaseURL: "https://catalogobase-96f50-default-rtdb.firebaseio.com/"
+};
+
+// Inicializa o Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// 2. Variável global que agora será preenchida pela nuvem
+let products = [];
+
+// 3. Função para carregar os dados automaticamente
+function loadFromFirebase() {
+  // O '.on' fica "escutando". Se você mudar no banco, o site atualiza sozinho na hora!
+  db.ref('products').on('value', (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      // Se houver dados no Firebase, usamos eles
+      products = data;
+    } else {
+      // Se o banco estiver vazio (primeira vez), products continua vazio
+      products = [];
+    }
+    render(); // Chama o seu renderizador original para desenhar os produtos na tela
+  });
+}
+
+// 4. Atualize sua função saveProduct para enviar os dados para a nuvem
+function saveProduct() {
+  const index = document.getElementById('editIndex').value;
+  
+  // Pega os valores das tags
+  const tagsInput = document.getElementById('formTags').value.trim();
+  const newLabels = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
+  
+  // Objeto nutricional
+  const kcal = document.getElementById('formNutriKcal').value;
+  let nutriObj = null;
+  if (kcal) {
+    nutriObj = {
+      kcal: parseInt(kcal),
+      prot: document.getElementById('formNutriProt').value || "-",
+      carb: document.getElementById('formNutriCarb').value || "-",
+      gord: document.getElementById('formNutriGord').value || "-"
+    };
+  }
+
+  const newProd = {
+    name: document.getElementById('formName').value,
+    brand: document.getElementById('formBrand').value,
+    cat: document.getElementById('formCat').value,
+    price: parseFloat(document.getElementById('formPrice').value) || 0,
+    qty: parseInt(document.getElementById('formQty').value) || null,
+    ppu: parseFloat(document.getElementById('formPpu').value) || null,
+    kgPrice: parseFloat(document.getElementById('formKgPrice').value) || null,
+    unit: document.getElementById('formUnit').value,
+    tagLabels: newLabels,
+    tags: index > -1 && products[index].tags ? products[index].tags : ['b', 'g'], 
+    nutri: nutriObj,
+    obs: document.getElementById('formObs').value
+  };
+
+  if (index > -1) {
+    products[index] = { ...products[index], ...newProd };
+  } else {
+    products.unshift(newProd);
+  }
+
+  // A MÁGICA ACONTECE AQUI:
+  // Salva o array inteiro no Firebase. O site no GitHub lerá daqui!
+  db.ref('products').set(products).then(() => {
+    closeModal();
+    console.log("Sincronizado com a nuvem!");
+  }).catch(error => {
+    alert("Erro ao salvar: " + error.message);
+  });
+}
+
+// Inicia o processo
+loadFromFirebase();
 
 let activeTab = "all";
 

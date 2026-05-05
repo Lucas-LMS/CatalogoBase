@@ -425,12 +425,13 @@ const categories = [
 
 // 1. Configuração do Firebase
 const firebaseConfig = {
-  databaseURL: "https://catalogobase-96f50-default-rtdb.firebaseio.com/"
-};
-
-// Inicializa o Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+    databaseURL: "https://catalogobase-96f50-default-rtdb.firebaseio.com/"
+  };
+  
+  if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+  }
+  const db = firebase.database();
 
 // 2. Variável global que agora será preenchida pela nuvem
 let products = [];
@@ -614,42 +615,38 @@ document.getElementById('formCat').innerHTML = categories
 function openModal(index = -1) {
   const modal = document.getElementById('productModal');
   const title = document.getElementById('modalTitle');
+  
+  // Define se estamos editando ou criando um novo
   document.getElementById('editIndex').value = index;
   
+  // Limpa todos os campos antes de começar
+  document.querySelectorAll('#productModal input, #productModal textarea').forEach(el => el.value = '');
+
   if (index > -1) {
     title.innerText = "Editar Produto";
     const p = products[index];
     
+    // Preenche os campos com os dados existentes[cite: 1]
     document.getElementById('formName').value = p.name || '';
     document.getElementById('formBrand').value = p.brand || '';
     document.getElementById('formCat').value = p.cat || '';
     document.getElementById('formPrice').value = p.price || '';
-    
     document.getElementById('formQty').value = p.qty || '';
     document.getElementById('formPpu').value = p.ppu || '';
     document.getElementById('formKgPrice').value = p.kgPrice || '';
     document.getElementById('formUnit').value = p.unit || '';
-    
-    // Carrega as tags transformando o array em texto separado por vírgula
     document.getElementById('formTags').value = p.tagLabels ? p.tagLabels.join(', ') : '';
-    
+    document.getElementById('formObs').value = p.obs || '';
+
     if (p.nutri) {
       document.getElementById('formNutriKcal').value = p.nutri.kcal || '';
       document.getElementById('formNutriProt').value = p.nutri.prot || '';
       document.getElementById('formNutriCarb').value = p.nutri.carb || '';
       document.getElementById('formNutriGord').value = p.nutri.gord || '';
-    } else {
-      document.getElementById('formNutriKcal').value = '';
-      document.getElementById('formNutriProt').value = '';
-      document.getElementById('formNutriCarb').value = '';
-      document.getElementById('formNutriGord').value = '';
     }
-    
-    document.getElementById('formObs').value = p.obs || '';
-    
   } else {
     title.innerText = "Novo Produto";
-    document.querySelectorAll('#productModal input, #productModal textarea').forEach(el => el.value = '');
+    // Garante que o select de categoria volte ao primeiro item
     if(document.getElementById('formCat').options.length > 0) {
         document.getElementById('formCat').selectedIndex = 0;
     }
@@ -662,6 +659,61 @@ function closeModal() {
 }
 
 function saveProduct() {
+  const indexStr = document.getElementById('editIndex').value;
+  const index = parseInt(indexStr);
+  
+  // Captura dos valores do formulário[cite: 1]
+  const tagsInput = document.getElementById('formTags').value.trim();
+  const newLabels = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
+  
+  const kcal = document.getElementById('formNutriKcal').value;
+  let nutriObj = null;
+  if (kcal) {
+    nutriObj = {
+      kcal: parseInt(kcal),
+      prot: document.getElementById('formNutriProt').value || "-",
+      carb: document.getElementById('formNutriCarb').value || "-",
+      gord: document.getElementById('formNutriGord').value || "-"
+    };
+  }
+
+  const newProd = {
+    name: document.getElementById('formName').value,
+    brand: document.getElementById('formBrand').value,
+    cat: document.getElementById('formCat').value,
+    price: parseFloat(document.getElementById('formPrice').value) || 0,
+    qty: parseInt(document.getElementById('formQty').value) || null,
+    ppu: parseFloat(document.getElementById('formPpu').value) || null,
+    kgPrice: parseFloat(document.getElementById('formKgPrice').value) || null,
+    unit: document.getElementById('formUnit').value,
+    tagLabels: newLabels,
+    tags: (index > -1 && products[index] && products[index].tags) ? products[index].tags : ['b', 'g'],
+    nutri: nutriObj,
+    obs: document.getElementById('formObs').value
+  };
+
+  // Lógica de salvamento local no array[cite: 1]
+  if (index > -1) {
+    products[index] = { ...products[index], ...newProd };
+  } else {
+    // Se products for null ou undefined, inicializa como array vazio
+    if (!products) products = [];
+    products.unshift(newProd);
+  }
+
+  // Envia para o Firebase[cite: 1]
+  db.ref('products').set(products)
+    .then(() => {
+      console.log("Dados enviados ao Firebase!");
+      closeModal();
+      // Forçamos o render logo após salvar para garantir a visualização imediata
+      render(); 
+    })
+    .catch(error => {
+      console.error("Erro detalhado:", error);
+      alert("Erro ao salvar! Verifique as regras do Firebase.");
+    });
+}
   const index = document.getElementById('editIndex').value;
   
   const kcal = document.getElementById('formNutriKcal').value;
@@ -722,7 +774,7 @@ function saveProduct() {
 
   closeModal();
   render();
-}
+
 
 </script>
 </body>
